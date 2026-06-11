@@ -1,6 +1,6 @@
 # Infra notes — queues, mail, logging, docs
 
-Short reference for the standard infra pieces. Adopt each only when the project needs it; none are part of the core CRUD scaffold.
+Short reference for the standard infra pieces. Adopt each only when the project needs it; none are part of the core CRUD scaffold. **`setup-workspace` intake question 7** asks which modules to enable (`mail`, `redis`, `queues`, `sms`) — strip the rest per skill §2g.
 
 ## Queues — BullMQ + Bull Board
 

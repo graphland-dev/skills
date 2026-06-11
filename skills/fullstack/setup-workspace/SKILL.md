@@ -1,6 +1,6 @@
 ---
 name: setup-workspace
-description: Bootstrap a GraphLand fullstack monorepo — bun workspaces with a NestJS API (apps/api), a React console (apps/console), mprocs, and docker-compose. Asks upfront for console framework (Vite/Next.js), API data (REST/GraphQL/both), auth (Better Auth vs custom JWT), and tenancy (multi-tenant vs single-tenant with configurable workspace route). All reference templates are bundled in ./templates/. Vite consoles always use TanStack Router; all consoles use TanStack Query. Use once when starting a new fullstack project.
+description: Bootstrap a GraphLand fullstack monorepo — bun workspaces with a NestJS API (apps/api), a React console (apps/console), mprocs, and docker-compose. Asks upfront for console framework, API data, auth, tenancy, workspace route, and optional API infra (mail, redis, queues, sms). All reference templates are bundled in ./templates/. Vite consoles always use TanStack Router; all consoles use TanStack Query. Use once when starting a new fullstack project.
 argument-hint: <project-name>
 disable-model-invocation: true
 ---
@@ -8,6 +8,8 @@ disable-model-invocation: true
 > **Locating sibling skills:** paths like `ui-patterns/...` or `api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
 Bootstrap a fullstack monorepo using **bundled templates** in `./templates/` (see `./templates/README.md`). Project name from arguments: **$ARGUMENTS** (if empty or not substituted, ask the user).
+
+**Templates are source-only** — no `node_modules/` or `dist/` in the skill pack. Run `bun install` only in the **scaffolded** monorepo root after copying templates, never inside the installed skill's `templates/` directory.
 
 **Do not scaffold until intake is complete.** Record the answers and branch the steps below.
 
@@ -23,6 +25,7 @@ Ask the user (or infer from `$ARGUMENTS` / conversation when already stated). If
 | 4 | **Auth** | `better-auth` · `custom-jwt` | `better-auth` |
 | 5 | **Multi-tenant** | `yes` · `no` | `yes` |
 | 6 | **Workspace route** (tenant-user area in console) | URL segment, e.g. `merchant`, `workspace`, `portal` | `merchant` — **only ask when multi-tenant = `yes`** |
+| 7 | **API infra modules** | multi-select: `mail` · `redis` · `queues` · `sms` | see **§0 API infra defaults** — **ask explicitly; do not ship unused modules** |
 
 **Auth choice explained (ask in plain language):**
 
@@ -36,7 +39,30 @@ If the user picks `custom-jwt`, nudge API data layer toward `graphql` or `both` 
 - **`yes` (multi-tenant)** — Users belong to one or more tenants/orgs. Console has org/tenant switcher. API scopes data and permissions per active tenant/org. Ask for **workspace route** (default `merchant`) — the URL prefix for the signed-in dashboard, e.g. `/merchant` or `/workspace`. Templates ship `/merchant`; rename per §3A-e when the answer is not `merchant`.
 - **`no` (single-tenant)** — One user pool, no org/tenant switcher. **Do not** wire `x-tenant`, tenant membership RBAC, or `@OrganizationId()` / `@TenantName()` on feature handlers. Default dashboard route is `/app` (rename from template `/merchant` per §3A-e).
 
-Confirm back in one line, e.g. *"Scaffolding **acme** — Vite, REST, Better Auth, multi-tenant, workspace `/merchant`."* or *"…single-tenant, workspace `/app`."*
+**API infra modules explained (ask in plain language):**
+
+Templates bundle optional `src/common/` infra — **not every project needs all of it**. Ask which to keep:
+
+| Module | What it powers | Typical need |
+| --- | --- | --- |
+| **`mail`** | Nodemailer + MJML (`MailModule`, invitation/reset emails) | Org invitations (Better Auth multi-tenant), forgot-password emails |
+| **`redis`** | `RedisModule` / `ioredis` | OTP & password-reset tokens (`api-jwt`), rate limits, session cache |
+| **`queues`** | BullMQ + Bull Board (`api-patterns/references/infra-notes.md`) | Background jobs (campaigns, webhooks, bulk email) — **not bundled**; add when selected |
+| **`sms`** | SMS provider module | Phone OTP / transactional SMS — **not bundled**; scaffold stub or integrate provider when selected |
+
+**§0 API infra defaults** (when user defers — still confirm):
+
+| Auth | Multi-tenant | Suggested modules |
+| --- | --- | --- |
+| `better-auth` | `yes` | `mail` |
+| `better-auth` | `no` | none |
+| `custom-jwt` | either | `mail` + `redis` (forgot-password in template uses both) |
+| any | any + user wants jobs | add `redis` + `queues` |
+| any | any + user wants SMS | add `sms` (often needs `redis` for OTP) |
+
+`redis` is required when `queues` is selected. Strip everything not selected per **§2g**.
+
+Confirm back in one line, e.g. *"Scaffolding **acme** — Vite, REST, Better Auth, multi-tenant, `/merchant`, API infra: mail."*
 
 ### Non-negotiable stack rules
 
@@ -86,9 +112,9 @@ Create the project folder, `git init`, then copy from `./templates/`:
 | --- | --- | --- |
 | `package.json` | `./package.json` | Set `name` to `<project>-monorepo`; workspaces are `apps/*` + `packages/*` |
 | `mprocs.yaml` | `./mprocs.yaml` | One proc per app; `bun dev` at root runs them all in a tabbed UI |
-| `docker-compose.yml` | `./docker-compose.yml` | MongoDB 8 + Redis 7 with healthchecks for local dev |
+| `docker-compose.yml` | `./docker-compose.yml` | MongoDB always; **include `redis` service only when intake selects `redis` or `queues`** (trim the service otherwise) |
 
-Add a root `.gitignore` (node_modules, dist, .env, data/) and a short root `README.md` documenting the chosen stack (console framework, API data layer, auth provider, multi-tenant yes/no, workspace route), quick start (`docker compose up -d`, `bun install`, `bun dev`), and workspace table.
+Add a root `.gitignore` (node_modules, dist, .env, data/) and a short root `README.md` documenting the chosen stack (console framework, API data layer, auth provider, multi-tenant yes/no, workspace route, enabled API infra modules), quick start (`docker compose up -d`, `bun install`, `bun dev`), and workspace table.
 
 ## 2. apps/api — NestJS
 
@@ -99,7 +125,32 @@ Do **not** ship bare `nest new` output — merge a foundation matching the **aut
 1. `bunx @nestjs/cli new api` into `apps/` (skip git; delete any nested lockfile).
 2. Set `name` to `@<project>/api` in `package.json`.
 3. Ensure `@/` → `src/` path alias and build script `nest build && tsc-alias -p tsconfig.build.json`.
-4. Wire shared pieces every variant needs: `ValidationPipe`, `HttpExceptionFilter`, modular `config/` + Joi validation, `DatabaseModule`, Swagger at `/docs`, port **4001**.
+4. **`nest-cli.json` must set `entryFile`** for bun-workspace monorepos (otherwise `nest start` / `nest build` fail to resolve the bootstrap file):
+
+```json
+{
+  "sourceRoot": "src",
+  "entryFile": "apps/api/src/main",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "assets": []
+  }
+}
+```
+
+When **`mail`** is enabled, add the MJML asset entry:
+
+```json
+{
+  "include": "common/mail/emails-templates/**/*.mjml",
+  "outDir": "dist",
+  "watchAssets": true
+}
+```
+
+If MJML templates live in a shared package instead, point `assets[].include` at that package (e.g. `../../packages/shared-api/src/mail/templates/**/*.mjml`). Set `start:prod` to `node dist/apps/api/src/main`.
+
+5. Wire shared pieces every variant needs: `ValidationPipe`, `HttpExceptionFilter`, modular `config/` + Joi validation, `DatabaseModule`, Swagger at `/docs`, port **4001**.
 
 ### 2b. Better Auth foundation (when auth = `better-auth`)
 
@@ -117,7 +168,7 @@ Copy `./templates/api/` into `apps/api/` (package.json, nest-cli, tsconfig, `src
 
 When auth = `custom-jwt`, skip §2b entirely — copy `./templates/api-jwt/` in §2c. **Never mix** Better Auth (`templates/api/`) with JWT (`templates/api-jwt/`).
 
-After copy, apply **§2f** tenancy adjustments before env/verify.
+After copy, apply **§2g** (API infra) and **§2f** (tenancy) before env/verify.
 
 ### 2c. Custom JWT foundation (when auth = `custom-jwt`)
 
@@ -214,11 +265,47 @@ After REST foundation is in place:
 | --- | --- |
 | `MONGODB_URI` | `mongodb://localhost:27017/<project>` |
 | `JWT_SECRET` | long random secret (shared across APIs if you add more later) |
-| `REDIS_URL` | `redis://localhost:6379` (OTP / password-reset tokens) |
+| `REDIS_URL` | only when **`redis`** selected — `redis://localhost:6379` |
 | `CORS_ORIGIN` | console origin |
-| `MAIL_*` | optional — forgot-password emails |
+| `MAIL_*` | only when **`mail`** selected — see `./templates/api/.env.example` |
 
-### 2f. Tenancy adjustments (apply after §2b/§2c and before verify)
+### 2g. Optional API infra modules (apply after §2b/§2c)
+
+Record intake: `apiInfra: string[]` from question 7. Templates ship **mail** (both APIs) and **redis** (`api-jwt` only) wired by default — **remove what was not selected**.
+
+#### `mail` — when **not** selected
+
+1. Remove `MailModule` imports from `AppModule`, `AuthModule` / `api/identity/auth/auth.module.ts`.
+2. Remove `OrganizationInvitationMailService` and `organization-invitation-mail.service.ts` (Better Auth).
+3. In `create-auth.ts`, remove `sendOrganizationInvitationEmail` / `sendInvitationEmail` hooks (Better Auth).
+4. In `api-jwt`, strip forgot-password email paths from `auth.service.ts` or replace with a no-op / console-only flow.
+5. Remove `config__mail.config.ts` from `config/index.ts`; drop `MAIL_*` from `.env.example`.
+6. Remove `mjml` + `nodemailer` from `package.json` if nothing else uses them.
+7. Remove MJML `assets` from `nest-cli.json` (see §2a).
+8. Delete `src/common/mail/` if no references remain.
+
+#### `redis` — when **not** selected
+
+1. Remove `RedisModule` from `AppModule` and `api/identity/auth/auth.module.ts` (`api-jwt`).
+2. Remove `RedisService` injection from `auth.service.ts`; delete OTP / Redis-backed token storage in forgot-password — disable those mutations or use a DB-only alternative the user approves.
+3. Remove `REDIS_URL` from `.env.example` and Joi schema (`env.validation.ts`).
+4. Remove `ioredis` from `package.json`.
+5. Delete `src/common/redis/`.
+6. Omit `redis` service from root `docker-compose.yml`.
+
+#### `queues` — when **selected**
+
+1. Add `@nestjs/bullmq`, `bullmq`, `ioredis`; require **`redis`** in intake (and docker-compose).
+2. Follow `api-patterns/references/infra-notes.md` — `src/common/queue/`, Bull Board at `/admin/queues`.
+3. When **not** selected, do not add BullMQ packages or queue processors.
+
+#### `sms` — when **selected**
+
+Not bundled in templates. Add `src/common/sms/` (provider interface + env config), wire OTP/login flows the user describes, and add provider env vars to `.env.example`. Often pairs with **`redis`** for OTP storage. When **not** selected, do not add SMS modules or env.
+
+**Dependency rule:** `queues` ⇒ `redis`. `sms` with OTP ⇒ usually `redis`. `custom-jwt` forgot-password in the template ⇒ `mail` + `redis` unless those flows are removed.
+
+### 2f. Tenancy adjustments (apply after §2b/§2c and §2g, before verify)
 
 Record intake: `multiTenant` (`yes`|`no`), `workspacePath` (URL segment).
 
@@ -343,7 +430,7 @@ Env: `NEXT_PUBLIC_API_URL=http://localhost:4001` in `apps/console/.env.local`.
 
 ## 4. Verify
 
-1. `docker compose up -d` — mongo + redis healthy.
+1. `docker compose up -d` — mongo healthy; redis healthy only when `redis` or `queues` selected.
 2. `bun install` at the root.
 3. `bun dev` — mprocs shows api + console.
 4. API **4001**: `/health`, Swagger `/docs`; Better Auth at `/auth/reference` **or** JWT login mutation/endpoint when `custom-jwt`; GraphQL `/graphql` when enabled.

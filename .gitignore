@@ -1,0 +1,20 @@
+# Dependencies & build output — never commit inside skill templates
+node_modules/
+dist/
+.bun/
+
+# Lockfiles from accidental installs in template dirs
+skills/**/templates/**/bun.lock
+skills/**/templates/**/package-lock.json
+skills/**/templates/**/yarn.lock
+skills/**/templates/**/pnpm-lock.yaml
+
+# Env & local data
+.env
+.env.*
+!.env.example
+data/
+
+# OS & editor
+.DS_Store
+*.log

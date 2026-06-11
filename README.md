@@ -74,6 +74,7 @@ API data: REST
 Auth: Better Auth
 Multi-tenant: yes
 Workspace route: merchant
+API infra: mail
 
 Copy templates from the skill pack and verify both apps build.
 ```
@@ -128,6 +129,7 @@ new-graphql-util Product inventory
 | Auth | `better-auth` · `custom-jwt` | `better-auth` |
 | Multi-tenant | `yes` · `no` | `yes` |
 | Workspace route | URL segment for signed-in dashboard | `merchant` if multi-tenant · `app` if single-tenant |
+| API infra | `mail` · `redis` · `queues` · `sms` (multi-select) | Better Auth multi-tenant → `mail`; custom-jwt → `mail`+`redis`; else none |
 
 **Stack rules:** Vite → TanStack Router + TanStack Query. Next.js → App Router + TanStack Query.
 
@@ -147,3 +149,5 @@ new-graphql-util Product inventory
 ## Maintaining this repo
 
 Production apps (waland, storeos, Banik) are **upstream sources** when improving templates — port changes into `skills/**/templates/` and bump the skill pack version. Consumers copy from this public repo only; they should not need access to private codebases.
+
+**Do not commit** `node_modules/`, `dist/`, or lockfiles under `skills/**/templates/` — templates are copied as source; dependencies install in the user's new project.

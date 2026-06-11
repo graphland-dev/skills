@@ -2,6 +2,8 @@
 
 All reference code for greenfield monorepos lives in this directory. **No external repos are required** — copy from here when running the `setup-workspace` skill.
 
+**Maintainers:** do not run `bun install` / `npm install` inside `templates/` in this repo. Templates ship source only (`package.json`, lockfiles are created in the **scaffolded** project after copy). Never commit `node_modules/`, `dist/`, or lockfiles under `templates/`.
+
 ## Layout
 
 | Directory | Auth | Console | API data |
@@ -30,8 +32,11 @@ All reference code for greenfield monorepos lives in this directory. **No extern
 
 Templates ship **multi-tenant** defaults (`/merchant`, org switcher, `x-tenant` on JWT). For **single-tenant** projects, follow `setup-workspace` skill §2f and §3A-e to strip org/tenant wiring and rename the workspace route (default single-tenant path: `/app`).
 
+**Optional API infra** (`mail`, `redis`, `queues`, `sms`) is bundled but not required — intake question 7 controls what to keep. See skill §2g for strip instructions. `api-jwt` wires mail+redis by default; `api` wires mail for org invitations.
+
 ## `api/` — Better Auth API
 
+- `nest-cli.json` — `entryFile: "apps/api/src/main"` (required in bun monorepos); MJML assets under `common/mail/emails-templates/`
 - `src/auth/` — Better Auth + organization plugin
 - `src/authorization/` — `UserSessionGuard`, `@OrganizationId()`
 - `src/common/` — database, mail, pagination, filters
@@ -39,6 +44,7 @@ Templates ship **multi-tenant** defaults (`/merchant`, org switcher, `x-tenant` 
 
 ## `api-jwt/` — Custom JWT API
 
+- `nest-cli.json` — same `entryFile` / MJML assets pattern as `api/`
 - `src/authorization/` — `@JwtAuthenticated()`, `@Authenticated()`, `@AuthenticatedUser()`, `@TenantName()`, `PermissionGuard`
 - `src/api/identity/` — auth, user, roles, tenant GraphQL modules
 - `src/entities/identity/` — User, Tenant, Role, Permission
