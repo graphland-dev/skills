@@ -9,7 +9,7 @@
   <mj-body background-color="#F8FAFC">
     <mj-section padding="32px 24px 8px">
       <mj-column>
-        <mj-text font-size="28px" font-weight="700" color="#0F766E" align="center">Waland</mj-text>
+        <mj-text font-size="28px" font-weight="700" color="#0F766E" align="center">{{appName}}</mj-text>
         <mj-text font-size="13px" color="#64748B" align="center" padding-top="4px">WhatsApp Messaging API</mj-text>
       </mj-column>
     </mj-section>
@@ -39,7 +39,7 @@
           This is an automated security notification for organization owners.
         </mj-text>
         <mj-text font-size="12px" color="#94A3B8" align="center" padding-top="8px">
-          Waland · <a href="{{consoleUrl}}" style="color:#64748B">{{consoleUrl}}</a> ·
+          {{appName}} · <a href="{{consoleUrl}}" style="color:#64748B">{{consoleUrl}}</a> ·
           <a href="mailto:{{supportEmail}}" style="color:#64748B">{{supportEmail}}</a>
         </mj-text>
       </mj-column>

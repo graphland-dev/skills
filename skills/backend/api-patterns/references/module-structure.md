@@ -47,4 +47,4 @@ For fire-and-forget side-effects (audit logging, counters, notifications) use Ne
 
 ## Advanced: hook-based repository base class
 
-For projects with many CRUD modules, waland defines an abstract `PersistenceRepositoryService<T>` (permission/before/after hooks per operation, pagination, populations, key mapping) that feature repositories extend. Adopt it once a project crosses ~5 similar CRUD modules; start with the plain repository in `templates/example-module/` until then.
+For projects with many CRUD modules, the bundled Better Auth API template defines an abstract `PersistenceRepositoryService<T>` in `setup-workspace/templates/api/src/common/database/` (permission/before/after hooks per operation, pagination, populations, key mapping) that feature repositories extend. Adopt it once a project crosses ~5 similar CRUD modules; start with the plain repository in `api-patterns/templates/example-module/` until then.

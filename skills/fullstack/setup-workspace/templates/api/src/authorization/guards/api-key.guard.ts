@@ -36,11 +36,6 @@ export class ApiKeyGuardHost implements CanActivate {
 }
 
 function extractApiKey(request: Request): string | null {
-  const headerKey = request.headers['waland-api-key'];
-  if (typeof headerKey === 'string' && headerKey.length > 0) {
-    return headerKey;
-  }
-
   const xApiKey = request.headers['x-api-key'];
   if (typeof xApiKey === 'string' && xApiKey.length > 0) {
     return xApiKey;

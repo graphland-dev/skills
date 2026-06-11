@@ -5,7 +5,7 @@ description: GraphLand's common UI guideline — canonical patterns and ready-to
 
 # GraphLand UI Patterns
 
-The company-wide UI guideline, extracted from the production Banik console. Canonical stack: React + Vite + TanStack Router/Query + shadcn/ui + Tailwind. Every pattern has an **Adaptation** section in its reference doc for Next.js, React Router, or REST backends — read [references/adaptation.md](references/adaptation.md) before applying the patterns outside the canonical stack.
+The company-wide UI guideline with bundled templates in [templates/](templates/). Canonical stack: React + Vite + TanStack Router/Query + shadcn/ui + Tailwind. Every pattern has an **Adaptation** section in its reference doc for Next.js, React Router, or REST backends — read [references/adaptation.md](references/adaptation.md) before applying the patterns outside the canonical stack.
 
 **Foundation not installed yet?** Run the `setup-foundation` skill (or follow it manually) before scaffolding pages. Templates live in [templates/](templates/) — copy them verbatim rather than re-deriving them.
 

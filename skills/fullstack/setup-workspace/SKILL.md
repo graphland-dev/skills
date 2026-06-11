@@ -1,13 +1,13 @@
 ---
 name: setup-workspace
-description: Bootstrap a GraphLand fullstack monorepo — bun workspaces with a NestJS API (apps/api), a React console (apps/console), mprocs, and docker-compose. Asks upfront for console framework (Vite/Next.js), API style (REST/GraphQL/both), and auth (Better Auth vs custom JWT like storeos). Vite consoles always use TanStack Router; all consoles use TanStack Query. Use once when starting a new fullstack project.
+description: Bootstrap a GraphLand fullstack monorepo — bun workspaces with a NestJS API (apps/api), a React console (apps/console), mprocs, and docker-compose. Asks upfront for console framework (Vite/Next.js), API style (REST/GraphQL/both), and auth (Better Auth vs custom JWT). All reference templates are bundled in ./templates/. Vite consoles always use TanStack Router; all consoles use TanStack Query. Use once when starting a new fullstack project.
 argument-hint: <project-name>
 disable-model-invocation: true
 ---
 
 > **Locating sibling skills:** paths like `ui-patterns/...` or `api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
-Bootstrap a fullstack monorepo following the **waland** reference architecture. Project name from arguments: **$ARGUMENTS** (if empty or not substituted, ask the user).
+Bootstrap a fullstack monorepo using **bundled templates** in `./templates/` (see `./templates/README.md`). Project name from arguments: **$ARGUMENTS** (if empty or not substituted, ask the user).
 
 **Do not scaffold until intake is complete.** Record the answers and branch the steps below.
 
@@ -18,16 +18,16 @@ Ask the user (or infer from `$ARGUMENTS` / conversation when already stated). If
 | # | Question | Options | Default when user defers |
 | --- | --- | --- | --- |
 | 1 | **Project name** | free text | ask |
-| 2 | **Console framework** | `vite` · `nextjs` | `vite` (waland reference) |
-| 3 | **API data layer** | `rest` · `graphql` · `both` | `rest` (waland reference) |
-| 4 | **Auth** | `better-auth` · `custom-jwt` | `better-auth` (waland reference) |
+| 2 | **Console framework** | `vite` · `nextjs` | `vite` |
+| 3 | **API data layer** | `rest` · `graphql` · `both` | `rest` |
+| 4 | **Auth** | `better-auth` · `custom-jwt` | `better-auth` |
 
 **Auth choice explained (ask in plain language):**
 
-- **`better-auth`** — Session-based auth mounted at `/auth/*`, org plugin (`activeOrganizationId` on session), social OAuth, invitation emails. **Reference:** `waland/apps/api` + `waland/apps/console`.
-- **`custom-jwt`** — Hand-rolled Passport + `jsonwebtoken`, stateless bearer tokens, tenant via `x-tenant` header, RBAC via Mongo `Role` + `User.memberships[]`. **Reference:** `storeos/apps/core-api` + `storeos/packages/shared-api` + `storeos/apps/web-console`.
+- **`better-auth`** — Session-based auth at `/auth/*`, org plugin, social OAuth. **Templates:** `./templates/api/` + `./templates/console/`.
+- **`custom-jwt`** — Passport + JWT, bearer tokens, `x-tenant` header, `@Authenticated()` RBAC in API. **Templates:** `./templates/api-jwt/` + `./templates/console-jwt/`.
 
-If the user picks `custom-jwt`, nudge API data layer toward `graphql` or `both` (storeos exposes login via GraphQL mutations) — but do not override an explicit REST choice.
+If the user picks `custom-jwt`, nudge API data layer toward `graphql` or `both` (`api-jwt` ships with GraphQL identity mutations) — but do not override an explicit REST choice.
 
 Confirm back in one line, e.g. *"Scaffolding **acme** — Vite console, REST API, Better Auth."*
 
@@ -45,7 +45,7 @@ Confirm back in one line, e.g. *"Scaffolding **acme** — Vite console, REST API
 | Auth | API template | Console auth client | Tenancy |
 | --- | --- | --- | --- |
 | `better-auth` | `./templates/api/` (`auth/`, `UserSessionGuard`, `/auth/*`) | `better-auth/react` + `organizationClient()` — ships in `./templates/console/src/lib/auth.ts` | `organizationId` from session via `@OrganizationId()` |
-| `custom-jwt` | Scaffold from **storeos** pattern (see §2c) — **no** `./templates/api/auth/` or `./templates/api/authorization/` | `ui-patterns/templates/lib/token-service.ts` + bearer on `gql-client` / `api-client` | `x-tenant` header + `@Authenticated()` RBAC in API |
+| `custom-jwt` | Copy `./templates/api-jwt/` — **not** `./templates/api/` | Copy `./templates/console-jwt/` | `x-tenant` + `@Authenticated()` in `api-jwt/src/authorization/` |
 
 | Console | API data | Console data libs | API data bootstrap |
 | --- | --- | --- | --- |
@@ -56,12 +56,12 @@ Confirm back in one line, e.g. *"Scaffolding **acme** — Vite console, REST API
 
 Substitute `<project>` / `<ProjectName>` / `@<project>/` placeholders throughout copied templates.
 
-**Reference apps:**
+**Bundled templates** (all in this repo — see `./templates/README.md`):
 
-| Stack | Reference |
+| Stack | Copy |
 | --- | --- |
-| Better Auth + Vite + REST | `waland/apps/api` + `waland/apps/console` |
-| Custom JWT + GraphQL | `storeos/apps/core-api` + `storeos/packages/shared-api` + `storeos/apps/web-console` |
+| Better Auth + Vite + REST | `./templates/api/` + `./templates/console/` |
+| Custom JWT + GraphQL | `./templates/api-jwt/` + `./templates/console-jwt/` |
 | GraphQL data-layer conventions | `ui-patterns/references/data-layer.md` |
 
 ## 1. Workspace root
@@ -101,33 +101,28 @@ Copy `./templates/api/` into `apps/api/` (package.json, nest-cli, tsconfig, `src
 
 **No `src/api/*` feature modules yet** — add REST resources with `new-api-module` (org-scoped via `@OrganizationId()`).
 
-When auth = `custom-jwt`, skip §2b entirely — use §2c instead. **Never mix** Better Auth files with the storeos authorization stack.
+When auth = `custom-jwt`, skip §2b entirely — copy `./templates/api-jwt/` in §2c. **Never mix** Better Auth (`templates/api/`) with JWT (`templates/api-jwt/`).
 
 ### 2c. Custom JWT foundation (when auth = `custom-jwt`)
 
-Scaffold from the **storeos** pattern — stateless JWT, Passport, tenant header. Read `storeos/packages/shared-api` and `storeos/apps/core-api` as the source of truth.
+Copy **all of `./templates/api-jwt/`** into `apps/api/` (package.json, tsconfig, `src/`). This bundle includes Passport JWT, GraphQL identity modules, and authorization decorators.
 
-**Do not copy** from `./templates/api/`:
-
-- `auth/` (Better Auth)
-- `authorization/guards/user-session.guard.ts`, `organization-id.decorator.ts`, or any `@UserSessionGuard` / `@OrganizationId()` usage
+**Do not copy** from `./templates/api/` (Better Auth).
 
 **API deps to add:** `@nestjs/passport`, `passport`, `passport-jwt`, `jsonwebtoken`, `bcryptjs`, `@types/passport-jwt`, `@types/bcryptjs`. Add `REDIS_URL` when OTP / forgot-password is needed.
 
-#### Authorization decorators live in the API (storeos pattern)
+#### Authorization decorators live in the API (bundled in `api-jwt`)
 
-All auth guards and param decorators stay under **`src/authorization/`** in the API app — same layout as storeos. The console only sends `Authorization: Bearer <jwt>` and `x-tenant`; it never implements permission checks.
+All guards and param decorators are under **`src/authorization/`** in `./templates/api-jwt/`. The console only sends `Authorization: Bearer <jwt>` and `x-tenant`; permission checks stay server-side.
 
-**Copy or recreate this tree:**
-
-| Path in `apps/api` | storeos reference | Exports |
-| --- | --- | --- |
-| `src/authorization/authorization.module.ts` | `packages/shared-api/src/authorization/authorization.module.ts` | `PassportModule` + `JwtStrategy` registered globally |
-| `src/authorization/passport/JwtStrategy.ts` | `packages/shared-api/.../JwtStrategy.ts` | Validates JWT → `req.user` payload (`sub`, `email`, …) |
-| `src/authorization/decorators/authenticated.decorator.ts` | `packages/shared-api/.../authenticated.decorator.ts` | `AuthenticationGuard`, `@JwtAuthenticated()` |
-| `src/authorization/decorators/user.decorator.ts` | `packages/shared-api/.../user.decorator.ts` | `@AuthenticatedUser()` param decorator |
-| `src/authorization/decorators/tenantID.decorator.ts` | `packages/shared-api/.../tenantID.decorator.ts` | `@TenantName()` from `x-tenant` header |
-| `src/authorization/authenticated.decorator.ts` | `apps/core-api/src/authorization/authenticated.decorator.ts` | `@Authenticated({ collectionName, privileges })` + `PermissionGuard` |
+| Path in template | Exports |
+| --- | --- |
+| `src/authorization/authorization.module.ts` | `PassportModule` + `JwtStrategy` |
+| `src/authorization/passport/JwtStrategy.ts` | JWT validation → `req.user` |
+| `src/authorization/decorators/authenticated.decorator.ts` | `AuthenticationGuard`, `@JwtAuthenticated()` |
+| `src/authorization/decorators/user.decorator.ts` | `@AuthenticatedUser()` |
+| `src/authorization/decorators/tenantID.decorator.ts` | `@TenantName()` from `x-tenant` |
+| `src/authorization/authenticated.decorator.ts` | `@Authenticated({ collectionName, privileges })` + `PermissionGuard` |
 
 **Decorator usage on every protected handler** (resolvers and REST controllers):
 
@@ -145,29 +140,25 @@ products(@AuthenticatedUser() user: IAuthUser, @TenantName() tenant: string) { .
 
 `@Authenticated()` composes `AuthenticationGuard` + optional `PermissionGuard`. `PermissionGuard` loads the user from Mongo, reads `x-tenant`, resolves `memberships[].roles`, joins `identity__Role` permissions, and checks `collectionName` + `privileges` metadata — **all server-side in the API**.
 
-**Never substitute** waland/Better Auth decorators on `custom-jwt` projects:
+**Never substitute** Better Auth decorators on `custom-jwt` projects:
 
-| Do not use (Better Auth) | Use instead (storeos) |
+| Do not use (`templates/api/`) | Use instead (`templates/api-jwt/`) |
 | --- | --- |
 | `@UserSessionGuard()` | `@JwtAuthenticated()` or `@Authenticated({ ... })` |
-| `@OrganizationId()` | `@TenantName()` + filter queries by tenant UID |
-| `api-patterns/references/auth.md` | storeos `authorization/` + `identity/` modules |
+| `@OrganizationId()` | `@TenantName()` + filter by tenant UID |
+| `api-patterns/references/auth.md` | `api-jwt/src/authorization/` + `api-jwt/src/api/identity/` |
 
-#### Identity + auth modules
+#### Identity modules (included in `api-jwt`)
 
-| Area | storeos reference | Purpose |
-| --- | --- | --- |
-| `src/api/identity/auth/` | `apps/core-api/src/api/identity/auth/` | `AuthService` (bcrypt + `jwt.sign`), login/signup resolvers or REST controller |
-| `src/api/identity/user/` | same tree | `identity__me`, user profile |
-| `src/api/identity/roles/` | same tree | `identity__Role` seed + lookup for `PermissionGuard` |
-| `src/api/identity/tenant/` | same tree | tenant CRUD / membership |
-| Identity entities | `packages/shared-api/src/entities/identity/` | `User`, `Tenant`, `Role`, `Permission`, `memberships[]` embed |
+| Path | Purpose |
+| --- | --- |
+| `src/api/identity/auth/` | `identity__login`, `identity__signup`, JWT signing |
+| `src/api/identity/user/` | `identity__me`, user profile |
+| `src/api/identity/roles/` | `identity__Role` for `PermissionGuard` |
+| `src/api/identity/tenant/` | tenant CRUD / membership |
+| `src/entities/identity/` | `User`, `Tenant`, `Role`, `Permission` |
 
-**`main.ts`:** default Nest body parser (no `bodyParser: false`). No `/auth/*` Better Auth mount.
-
-**GraphQL auth mutations** (storeos style): `identity__login`, `identity__signup`, `identity__me` — scaffold before feature modules. When API data = `rest` only, expose equivalent login/me REST endpoints.
-
-**Feature modules:** hand-scaffold resolvers/controllers with `@Authenticated()` — **do not** use `new-api-module` (it emits `@UserSessionGuard` + `@OrganizationId()`).
+**Feature modules:** hand-scaffold with `@Authenticated()` — **do not** use `new-api-module`.
 
 ### 2d. GraphQL layer (when API data = `graphql` or `both`)
 
@@ -208,11 +199,11 @@ After REST foundation is in place:
 
 ### Branch A — `vite` (default)
 
-Copy `./templates/console/` — waland's Vite + **TanStack Router** + **TanStack Query** + shadcn foundation.
+Copy `./templates/console/` (Better Auth) or `./templates/console-jwt/` (custom JWT) — Vite + **TanStack Router** + **TanStack Query** + shadcn foundation.
 
 #### 3A-a. Copy app skeleton
 
-1. Copy all of `./templates/console/` into `apps/console/`.
+1. Copy `./templates/console/` (Better Auth) or `./templates/console-jwt/` (custom JWT) into `apps/console/`.
 2. Set `package.json` `name` to `@<project>/console`.
 3. Replace branding placeholders with the project name.
 4. Verify `vite.config.ts` includes `@tanstack/router-plugin` with `routeFileIgnorePrefix: "~"`.
@@ -240,11 +231,9 @@ npx shadcn@latest add button input textarea label checkbox radio-group sheet dia
 | Auth | Keep from template | Remove / replace | Bootstrap |
 | --- | --- | --- | --- |
 | `better-auth` | `lib/auth.ts`, `lib/bootstrap.ts`, `lib/organizations.ts`, cookie-based `api-client.ts`, social login on `/access` | — | Session via `auth.getSession()`; org via Better Auth `organizationClient()` |
-| `custom-jwt` | dashboard shell, form/table, TanStack Router routes, `api-client` or `gql-client` | **Remove** `lib/auth.ts`, Better Auth dep, social-login `/access` UI | Copy `ui-patterns/templates/lib/token-service.ts`; store JWT in `localStorage`; send `Authorization: Bearer` + `x-tenant` on every API call; bootstrap = `identity__me` + tenant list query (see `storeos/apps/web-console/src/lib/identity.ts`) |
+| `custom-jwt` | Use `./templates/console-jwt/` as-is | `TokenService`, `gql-client.ts`, `identity.ts`, `/auth/login` | Bootstrap via `providers/bootstrap.tsx` + `identity__me` / `identity__myTenants` |
 
-**Custom JWT access page:** email/password (or OTP) form that calls the login mutation/endpoint, saves the token via `tokenService`, then redirects to `/merchant`. No `better-auth/react` client.
-
-**Custom JWT org switcher:** tenant dropdown sets `x-tenant` (tenant UID) on the API client — not `auth.organization.setActive()`.
+`console-jwt` already excludes Better Auth. Login is at `/auth/login` (email/password → JWT). Org switcher sets `x-tenant` via `setActiveTenantUid()`.
 
 `routeTree.gen.ts` is auto-generated on first `bun run dev` — do not hand-author.
 
@@ -286,9 +275,9 @@ Record the full intake (framework, API data, auth) in the root README, then scaf
 | --- | --- | --- | --- |
 | `better-auth` | `rest` | `new-api-module` | `new-module` |
 | `better-auth` | `graphql` | GraphQL resolvers + `new-graphql-util` | `new-module` |
-| `custom-jwt` | `graphql` | identity + feature resolvers with `@Authenticated()` | `new-module` + `new-graphql-util`; client sends `x-tenant` |
-| `custom-jwt` | `rest` | REST controllers with `@Authenticated()` | `new-module` with REST `~util.ts` |
+| `custom-jwt` | `graphql` | extend `api-jwt` identity + feature resolvers with `@Authenticated()` | `new-module` + `new-graphql-util`; client sends `x-tenant` |
+| `custom-jwt` | `rest` | REST controllers with `@Authenticated()` in `api-jwt` style | `new-module` with REST `~util.ts` |
 
-`new-api-module` is **Better Auth only** (`@UserSessionGuard`, `@OrganizationId()`). For `custom-jwt`, feature handlers must use the storeos authorization decorators from `src/authorization/` — never port waland guards onto a JWT stack.
+`new-api-module` is **Better Auth only**. For `custom-jwt`, use decorators from `./templates/api-jwt/src/authorization/`.
 
 For Vite + `better-auth` consoles created by this skill, **do not** re-run `setup-foundation` — foundation is already in `./templates/console/`. Use `setup-foundation` for Next.js consoles or late additions to existing apps.

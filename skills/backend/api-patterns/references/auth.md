@@ -27,7 +27,7 @@ findMany(@OrganizationId() organizationId: string, @Query() query: EntityListQue
 
 Better Auth is configured in `src/auth/create-auth.ts` (plugins: `openAPI()`, `bearer()`, `organization()`), with a Mongo adapter and hooks (`UserCreateHook` to auto-create a personal org, `SessionCreateHook` to set the active org). Required env: `BETTER_AUTH_SECRET` (≥32 chars), `BETTER_AUTH_URL`, `TRUSTED_ORIGINS` — validated at boot ([config.md](config.md)). Swagger registers both bearer schemes (see `templates/common/main.ts`).
 
-The guards/decorators are project code (thin wrappers over Better Auth session lookup and an `api_keys` collection); the waland repo (`apps/api/src/authorization/`) is the reference implementation to copy when standing up a new API.
+The guards/decorators are project code (thin wrappers over Better Auth session lookup and an `api_keys` collection). For greenfield projects, copy from `setup-workspace/templates/api/src/authorization/` (bundled in this skill pack). For custom JWT auth, use `setup-workspace/templates/api-jwt/src/authorization/` instead — do not mix the two stacks.
 
 ## Frontend pairing
 

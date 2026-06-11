@@ -17,7 +17,7 @@ Short reference for the standard infra pieces. Adopt each only when the project 
 ## Logging & observability
 
 - Default: Nest's built-in logger is fine to start.
-- Scale-up path (waland): Winston/Pino structured logs + optional OpenTelemetry (HyperDX) — initialized in `main.ts` before `NestFactory.create`, flushed on shutdown. Env-gated (`HYPERDX_API_KEY` optional), so dev runs clean without it.
+- Scale-up path: Winston/Pino structured logs + optional OpenTelemetry (HyperDX) — initialized in `main.ts` before `NestFactory.create`, flushed on shutdown. Env-gated (`HYPERDX_API_KEY` optional), so dev runs clean without it. See `setup-workspace/templates/api/src/main.ts` for the bundled baseline.
 - Always implement graceful shutdown: handle `SIGINT`/`SIGTERM`, close the Nest app, flush telemetry (see `templates/common/main.ts`).
 
 ## API docs — Swagger

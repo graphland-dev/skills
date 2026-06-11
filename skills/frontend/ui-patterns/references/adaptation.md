@@ -34,8 +34,8 @@ See [data-layer.md](data-layer.md) → Adaptation. Summary: REST projects drop `
 
 ## Design-system swaps
 
-The templates assume shadcn/ui with the `@/` path alias and a `cn()` helper in `@/lib/utils`. Required shadcn components: `button`, `input`, `textarea`, `checkbox`, `radio-group`, `slider`, `label`, `sheet`, `dialog`, `table`, `popover`, `command`, `calendar`, `skeleton`, `tooltip`, `dropdown-menu`, `select`, `card`, `separator`, `alert` (the RHF `form` primitives are bundled as `templates/ui/form.tsx` since the registry retired them). The data grid comes from the ReUI registry (`npx shadcn@latest add @reui/data-grid …`, see [data-table.md](data-table.md)) and brings its own deps (`@dnd-kit/*`, `@tanstack/react-virtual`). Banik's console also defines extra Button variants (e.g. `link-destructive`) — the templates here use only stock variants.
+The templates assume shadcn/ui with the `@/` path alias and a `cn()` helper in `@/lib/utils`. Required shadcn components: `button`, `input`, `textarea`, `checkbox`, `radio-group`, `slider`, `label`, `sheet`, `dialog`, `table`, `popover`, `command`, `calendar`, `skeleton`, `tooltip`, `dropdown-menu`, `select`, `card`, `separator`, `alert` (the RHF `form` primitives are bundled as `templates/ui/form.tsx` since the registry retired them). The data grid comes from the ReUI registry (`npx shadcn@latest add @reui/data-grid …`, see [data-table.md](data-table.md)) and brings its own deps (`@dnd-kit/*`, `@tanstack/react-virtual`). Some production consoles define extra Button variants (e.g. `link-destructive`) — the bundled templates use only stock shadcn variants.
 
 ## Sync policy
 
-Source of truth is `console.banik.app`. When its components gain fixes/features, port them here and bump the plugin version. Do not let target projects edit copied foundation files ad hoc — upstream improvements through this plugin instead.
+All templates are bundled in this skill pack (`ui-patterns/templates/`, `setup-workspace/templates/`). Target projects copy from the installed skills — do not hand-edit foundation files ad hoc; upstream improvements land in this public repo.

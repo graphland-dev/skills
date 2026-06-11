@@ -1,25 +1,17 @@
 # GraphLand Skills
 
-GraphLand's company-wide **fullstack engineering guideline**, packaged as agent skills. It captures patterns proven in production — **waland** (Better Auth monorepo), **Banik** (console UI patterns), and **storeos** (custom JWT + GraphQL auth) — so every GraphLand project is built the same way.
+GraphLand's company-wide **fullstack engineering guideline**, packaged as agent skills. **All reference code is bundled in this repo** — no private monorepos required to scaffold a new project.
 
 ## Install
 
-**Recommended** — install the full skill pack (scaffold skills depend on `ui-patterns` / `api-patterns` templates):
+**Recommended** — install the full skill pack (scaffold skills depend on sibling templates):
 
 ```bash
 npx skills add graphland-dev/skills --all -y
 ```
 
-Install for a specific agent:
-
 ```bash
 npx skills add graphland-dev/skills --all -a cursor -y
-npx skills add graphland-dev/skills --all -a claude-code -y
-```
-
-List skills without installing:
-
-```bash
 npx skills add graphland-dev/skills --list
 ```
 
@@ -30,7 +22,7 @@ npx skills add graphland-dev/skills --list
 /plugin install graphland@graphland
 ```
 
-Skills install to `.agents/skills/` (project) or `~/.agents/skills/` (global). Scaffold skills reference sibling paths like `ui-patterns/templates/...` — install the full pack, not individual skills alone.
+Skills install to `.agents/skills/`. Scaffold skills reference paths like `ui-patterns/templates/...` and `setup-workspace/templates/...` — **install `--all`**, not isolated skills.
 
 ## What's inside
 
@@ -39,73 +31,74 @@ Skills install to `.agents/skills/` (project) or `~/.agents/skills/` (global). S
 | Skill | What it does |
 | --- | --- |
 | `ui-patterns` | Frontend guideline — forms, `DataTable`, sheets, data layer, hooks. Auto-loaded when relevant. |
-| `setup-foundation` | Bootstrap foundation into an **existing** app (shadcn, form/table components, providers). |
-| `new-module` | Scaffold a CRUD list module (list page, `~util.ts`, form sheet, filter sheet). |
-| `new-form-page` | Scaffold a full-page multi-section create/edit form. |
-| `new-view-sheet` | Scaffold a read-only detail side panel with tabs. |
-| `new-graphql-util` | Generate a `~util.ts` with GQL operations + Zod schema. |
+| `setup-foundation` | Bootstrap foundation into an **existing** app (not needed after `setup-workspace`). |
+| `new-module` | Scaffold a CRUD list module. |
+| `new-form-page` | Scaffold a full-page form. |
+| `new-view-sheet` | Scaffold a read-only detail sheet. |
+| `new-graphql-util` | Generate `~util.ts` with GQL + Zod. |
 
 ### `backend/` — NestJS API patterns
 
 | Skill | What it does |
 | --- | --- |
-| `api-patterns` | Backend guideline — feature modules, DTOs, pagination, Better Auth tenancy. Auto-loaded when relevant. |
-| `new-api-module` | Scaffold an org-scoped CRUD module (**Better Auth only** — uses `@UserSessionGuard` + `@OrganizationId()`). |
+| `api-patterns` | Backend guideline — modules, DTOs, pagination, Better Auth. Auto-loaded when relevant. |
+| `new-api-module` | Scaffold CRUD module (**Better Auth only**). |
 
 ### `fullstack/` — monorepo
 
 | Skill | What it does |
 | --- | --- |
-| `setup-workspace` | Bootstrap a bun monorepo: `apps/api` + `apps/console` + mprocs + docker-compose. Asks intake questions first. |
+| `setup-workspace` | Bootstrap monorepo from **bundled templates** in `skills/fullstack/setup-workspace/templates/`. |
+
+## Bundled templates (`setup-workspace/templates/`)
+
+| Template | Auth | Use when |
+| --- | --- | --- |
+| `api/` + `console/` | Better Auth | Default — sessions, org plugin, social login |
+| `api-jwt/` + `console-jwt/` | Custom JWT | Passport, `@Authenticated()` RBAC, `x-tenant`, GraphQL login |
+| `package.json`, `mprocs.yaml`, `docker-compose.yml` | — | Monorepo root |
+
+See `skills/fullstack/setup-workspace/templates/README.md` for the full map.
+
+Also bundled in sibling skills: `ui-patterns/templates/` (forms, tables, gql-client), `api-patterns/templates/` (REST modules, common DTOs).
 
 ## Sample prompts
 
-Copy these into Cursor, Claude Code, Codex, or any agent with the skills installed. The agent should load the matching skill automatically, or you can name it explicitly.
-
-### New monorepo (full intake in one prompt)
+### New monorepo (choices inline)
 
 ```
-Use the setup-workspace skill to bootstrap a new monorepo called "acme".
+Use setup-workspace to bootstrap "acme".
 
-Choices:
-- Console: Vite
-- API data: REST
-- Auth: Better Auth (waland style)
+Console: Vite
+API data: REST
+Auth: Better Auth
 
-Scaffold apps/api and apps/console, wire docker-compose, and verify both apps build.
+Copy templates from the skill pack and verify both apps build.
 ```
 
-The agent should confirm: *"Scaffolding acme — Vite console, REST API, Better Auth."* then scaffold. If you omit choices, it will ask.
-
-### New monorepo — let the agent ask
+### Let the agent ask
 
 ```
 /setup-workspace acme
 ```
 
-or:
+### Better Auth (default templates)
 
 ```
-I need a new GraphLand fullstack monorepo called acme. Walk me through the setup choices and scaffold it.
+setup-workspace for "my-app"
+
+Vite, REST, Better Auth. Copy templates/api and templates/console.
+Then add Project CRUD with new-api-module and new-module.
 ```
 
-### waland stack (default)
-
-```
-setup-workspace for "waland-clone"
-
-Vite console, REST API, Better Auth. Match waland/apps/console and waland/apps/api.
-After bootstrap, add a Project CRUD — API module + console list page.
-```
-
-### storeos-style auth
+### Custom JWT (bundled api-jwt + console-jwt)
 
 ```
 setup-workspace for "my-saas"
 
-Vite console, GraphQL API, custom JWT auth like storeos.
-Authorization decorators must stay in the API (Authenticated, PermissionGuard, x-tenant).
-Do not use Better Auth or new-api-module — hand-scaffold resolvers with @Authenticated().
+Vite, GraphQL, custom-jwt.
+Copy templates/api-jwt and templates/console-jwt.
+Feature resolvers use @Authenticated() from the bundled authorization decorators.
 ```
 
 ### Next.js console
@@ -113,49 +106,18 @@ Do not use Better Auth or new-api-module — hand-scaffold resolvers with @Authe
 ```
 setup-workspace for "acme-admin"
 
-Next.js App Router console, REST API, Better Auth.
-Use TanStack Query (not TanStack Router on Next). Apply ui-patterns adaptation.md.
+Next.js, REST, Better Auth. Use setup-foundation + ui-patterns/references/adaptation.md.
 ```
 
-### GraphQL console (Better Auth)
+### Add features later
 
 ```
-setup-workspace for "banik-clone"
-
-Vite, GraphQL API, Better Auth.
-Console uses gql-client from ui-patterns; API needs a GraphQL module at /graphql.
+new-api-module Invoice          # Better Auth REST only
+new-module products/Product     # console list module
+new-graphql-util Product inventory
 ```
 
-### Add a feature to an existing project
-
-```
-# Better Auth + REST (after setup-workspace)
-Use new-api-module to add a NestJS Invoice module, then new-module for console route invoices/Invoice.
-
-# GraphQL util only
-Use new-graphql-util for Entity accounting in the products route folder.
-
-# Full-page form
-Use new-form-page for purchases/create Purchase — multi-section form with line items.
-```
-
-### Frontend-only (existing Vite app)
-
-```
-Use setup-foundation rest in this project, then new-module for products/Product.
-```
-
-Use `setup-foundation graphql` when the backend is GraphQL. Skip `setup-foundation` if the app was created by `setup-workspace` with Better Auth — foundation is already there.
-
-### Review / conventions check
-
-```
-Review this NestJS module against api-patterns — DTOs, pagination, org scoping.
-
-Review this list page against ui-patterns — URL state, DataTable, sheet CRUD.
-```
-
-## Intake cheat sheet (`setup-workspace`)
+## Intake cheat sheet
 
 | Question | Options | Default |
 | --- | --- | --- |
@@ -163,28 +125,19 @@ Review this list page against ui-patterns — URL state, DataTable, sheet CRUD.
 | API data | `rest` · `graphql` · `both` | `rest` |
 | Auth | `better-auth` · `custom-jwt` | `better-auth` |
 
-**Stack rules:** Vite → TanStack Router + TanStack Query. Next.js → App Router + TanStack Query. Never React Router.
+**Stack rules:** Vite → TanStack Router + TanStack Query. Next.js → App Router + TanStack Query.
 
-| Auth | API reference | Console reference |
-| --- | --- | --- |
-| `better-auth` | `waland/apps/api` | `waland/apps/console` |
-| `custom-jwt` | `storeos/apps/core-api` | `storeos/apps/web-console` |
-
-## Architecture (typical waland monorepo)
-
-A **bun workspace** (`apps/*`, `packages/*`) where `bun dev` runs every app via mprocs.
-
-- **API** — NestJS + Mongoose, controller→service→repository, class-validator DTOs, `{ data, meta }` pagination, Better Auth org tenancy.
-- **Console** — React 19 + Vite + TanStack Router/Query + shadcn, sheet-based CRUD, URL-driven list state, custom `DataTable` (TanStack Table).
-
-For **custom JWT** projects, swap Better Auth for Passport + `@Authenticated()` RBAC and GraphQL login mutations (storeos pattern).
-
-## Source of truth
-
-| Area | Production app |
+| Auth | Templates to copy |
 | --- | --- |
-| Console UI (forms, tables, sheets) | `console.banik.app` |
-| Monorepo + Better Auth | `waland` |
-| Custom JWT + GraphQL auth | `storeos` |
+| `better-auth` | `templates/api/` + `templates/console/` |
+| `custom-jwt` | `templates/api-jwt/` + `templates/console-jwt/` |
 
-When production apps evolve, port changes here and bump the skill pack version. Target projects should not hand-edit copied foundation files — upstream improvements through this repo.
+## Architecture
+
+**Better Auth path:** bun workspace, NestJS API with org tenancy, Vite console with TanStack Router/Query, shadcn, sheet CRUD, `DataTable`.
+
+**Custom JWT path:** GraphQL API with Passport + `@Authenticated()` RBAC, console with JWT in localStorage + `x-tenant` header.
+
+## Maintaining this repo
+
+Production apps (waland, storeos, Banik) are **upstream sources** when improving templates — port changes into `skills/**/templates/` and bump the skill pack version. Consumers copy from this public repo only; they should not need access to private codebases.

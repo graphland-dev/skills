@@ -50,6 +50,7 @@ export class MailService {
         'mail.supportEmail',
         'support@localhost',
       ),
+      appName: this.configService.get<string>('mail.appName', 'Your App'),
     };
   }
 

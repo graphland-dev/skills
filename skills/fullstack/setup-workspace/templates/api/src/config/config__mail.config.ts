@@ -11,5 +11,6 @@ export default () => ({
       process.env.CONSOLE_URL ??
       'http://localhost:5173',
     supportEmail: process.env.MAIL_SUPPORT_EMAIL,
+    appName: process.env.APP_NAME ?? 'Your App',
   },
 });

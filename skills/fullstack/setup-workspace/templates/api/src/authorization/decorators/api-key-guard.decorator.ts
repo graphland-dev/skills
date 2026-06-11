@@ -5,7 +5,7 @@ import { ApiKeyGuardHost } from '@/authorization/guards/api-key.guard';
 export function ApiKeyGuard() {
   return applyDecorators(
     UseGuards(ApiKeyGuardHost),
-    ApiBearerAuth('waland-api-key'),
+    ApiBearerAuth('x-api-key'),
     ApiUnauthorizedResponse({ description: 'Invalid or missing org API key' }),
   );
 }
