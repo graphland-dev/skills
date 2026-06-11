@@ -1,0 +1,10 @@
+procs:
+  api:
+    shell: bun run dev
+    cwd: ./apps/api
+    color: blue
+
+  console:
+    shell: bun run dev
+    cwd: ./apps/console
+    color: magenta

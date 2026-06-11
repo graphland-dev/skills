@@ -5,14 +5,14 @@ argument-hint: <route-path> <EntityName>
 disable-model-invocation: true
 ---
 
-Scaffold a view sheet — a read-only right-side panel opened from a list row, with a tab strip. Pattern reference: `${CLAUDE_PLUGIN_ROOT}/skills/ui-patterns/references/sheets.md` (View sheet section).
+Scaffold a view sheet — a read-only right-side panel opened from a list row, with a tab strip. Pattern reference: `${CLAUDE_PLUGIN_ROOT}/skills/frontend/ui-patterns/references/sheets.md` (View sheet section).
 
 **Arguments:** $ARGUMENTS
 **Format:** `<route-path> <EntityName>` — e.g. `clients Client` · `suppliers Supplier`
 
 ## 0. Preconditions and questions
 
-- Verify the foundation exists (`src/components/table/data-table.tsx` + ReUI data-grid in `src/components/reui/data-grid/`, sheet components); if not, point to `/graphland-ui:setup-foundation`.
+- Verify the foundation exists (`src/components/table/data-table.tsx` + ReUI data-grid in `src/components/reui/data-grid/`, sheet components); if not, point to `/graphland:setup-foundation`.
 - Ask the user:
   1. Which **related record tabs** (e.g. invoices, payments)? If none, generate Basic Info only.
   2. The **GraphQL namespace** for related queries (or REST endpoints).

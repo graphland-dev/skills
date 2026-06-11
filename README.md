@@ -1,47 +1,52 @@
-# GraphLand UI — Common UI Guideline
+# GraphLand Skills
 
-GraphLand's company-wide UI guideline as a [Claude Code plugin](https://docs.claude.com/en/docs/claude-code/plugins). It captures the patterns proven in production on the Banik console (`console.banik.app`) so every GraphLand frontend — current and future — builds UI the same way.
-
-## What's inside
-
-| Skill | What it does |
-| --- | --- |
-| `graphland-ui:ui-patterns` | The guideline itself — pattern docs + battle-tested component templates. Auto-loaded by the agent when relevant. |
-| `/graphland-ui:setup-foundation` | Bootstrap a project: install deps + shadcn components, copy the foundation files, wire providers. |
-| `/graphland-ui:new-module` | Scaffold a full CRUD list module (list page, `~util.ts`, form sheet, filter sheet). |
-| `/graphland-ui:new-form-page` | Scaffold a full-page multi-section create/edit form. |
-| `/graphland-ui:new-view-sheet` | Scaffold a read-only detail side panel with tabs. |
-| `/graphland-ui:new-graphql-util` | Generate a `~util.ts` with GQL queries/mutations + Zod schema. |
-
-## The patterns
-
-1. **Forms** — React Hook Form + Zod via `zodResolver`, rendered with `FormField*` wrapper components. One Zod schema per entity, co-located with its GraphQL operations.
-2. **Data table** — `DataTable`, a GraphLand wrapper over [ReUI DataGrid](https://reui.io/docs/data-grid) with our own prop API: server-side pagination, sorting, and debounced search, all driven by **URL search params** so list state is shareable and survives reloads. Call sites never touch ReUI or TanStack directly.
-3. **Sheets over routes for CRUD** — create/edit happens in a right-side `Sheet`; a single component handles both modes via an `entity?: T | null` prop. Filters and read-only detail views are sheets too.
-4. **Data layer** — a tiny fetch-based GraphQL client (`gql = String.raw`, no runtime GraphQL dependency) wrapped in TanStack Query; each route keeps its operations in a co-located `~util.ts`.
-5. **Hooks** — `useConfirmation` for imperative confirm dialogs, `useI18N` for translations keyed by English strings, `useIsMobile`.
-
-The canonical implementation targets React + Vite + TanStack Router/Query + shadcn/Tailwind, but every pattern doc includes an **Adaptation** section for Next.js, React Router, and REST backends.
+GraphLand's company-wide **fullstack engineering guideline**, packaged as agent skills. It captures the patterns proven in production on the Banik console (frontend) and the waland platform (backend + monorepo), so every GraphLand project — current and future — is built the same way.
 
 ## Install
 
-```
-/plugin marketplace add graphland-dev/graphland-ui
-/plugin install graphland-ui@graphland
-```
-
-Or for local development:
+**With the [skills CLI](https://github.com/vercel-labs/skills)** (works with Claude Code, Cursor, Codex, and 60+ agents):
 
 ```
-claude --plugin-dir /path/to/graphland-ui
+npx skills add graphland-dev/skills
 ```
 
-## Quick start in a new project
+**As a Claude Code plugin:**
 
-1. Run `/graphland-ui:setup-foundation graphql` (or `rest`) — installs dependencies, copies the foundation components, wires providers.
-2. Run `/graphland-ui:new-module <route-path> <EntityName>` for each CRUD screen.
-3. Ask the agent anything about the patterns — the `ui-patterns` skill loads automatically.
+```
+/plugin marketplace add graphland-dev/skills
+/plugin install graphland@graphland
+```
+
+## What's inside
+
+### `frontend/` — React console patterns
+
+| Skill | What it does |
+| --- | --- |
+| `ui-patterns` | The frontend guideline — forms (RHF + Zod), `DataTable` (wraps ReUI DataGrid), sheet-based CRUD, data layer, hooks. Auto-loaded when relevant. |
+| `setup-foundation` | Bootstrap a project: deps, shadcn + ReUI DataGrid, foundation components, providers. |
+| `new-module` | Scaffold a CRUD list module (list page, `~util.ts`, form sheet, filter sheet). |
+| `new-form-page` | Scaffold a full-page multi-section create/edit form. |
+| `new-view-sheet` | Scaffold a read-only detail side panel with tabs. |
+| `new-graphql-util` | Generate a `~util.ts` with GQL operations + Zod schema. |
+
+### `backend/` — NestJS API patterns
+
+| Skill | What it does |
+| --- | --- |
+| `api-patterns` | The backend guideline — feature-module anatomy, class-validator DTOs, pagination contract, org multi-tenancy with Better Auth, Joi-validated config. Auto-loaded when relevant. |
+| `new-api-module` | Scaffold an org-scoped CRUD feature module (controller/service/repository/DTOs/entity). |
+
+### `fullstack/` — monorepo
+
+| Skill | What it does |
+| --- | --- |
+| `setup-workspace` | Bootstrap a bun-workspace monorepo: `apps/api` (NestJS) + `apps/console` (React) + mprocs + docker-compose (Mongo/Redis). |
+
+## The architecture in one paragraph
+
+A **bun workspace** monorepo (`apps/*`, `packages/*`) where `bun dev` runs every app via mprocs. The **API** is NestJS + Mongoose with strict controller→service→repository layering, class-validator DTOs behind a strict global ValidationPipe, a uniform `{ data, meta }` pagination contract, and org-scoped multi-tenancy powered by Better Auth. The **console** is React 19 + Vite + TanStack Router/Query + shadcn, with schema-first forms, sheet-based CRUD, URL-driven list state, and a `DataTable` wrapper over ReUI DataGrid. The API's pagination meta feeds the frontend table directly.
 
 ## Source of truth
 
-Templates are copied from `console.banik.app` and genericized (no tenant logic, no generated GraphQL types, no custom button variants). When the console's components evolve, sync the templates here.
+Frontend templates come from `console.banik.app`; backend/monorepo patterns from `waland`. When those production apps evolve, port the changes here and bump the plugin version. Target projects should not hand-edit copied foundation files — upstream improvements through this repo.

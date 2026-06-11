@@ -1,15 +1,15 @@
 {
   "name": "graphland",
-  "description": "GraphLand's official Claude Code plugins, including the company-wide UI guideline.",
+  "description": "GraphLand's official Claude Code plugins, including the company-wide fullstack engineering guideline.",
   "owner": {
     "name": "GraphLand",
     "url": "https://github.com/graphland-dev"
   },
   "plugins": [
     {
-      "name": "graphland-ui",
+      "name": "graphland",
       "source": "./",
-      "description": "GraphLand's common UI guideline: patterns, component templates, and scaffold commands for forms, data tables, sheet-based CRUD, and the GraphQL data layer."
+      "description": "GraphLand's fullstack guideline: frontend (forms, DataTable, sheets, data layer), NestJS backend (modules, DTOs, pagination, multi-tenancy), and bun-workspace monorepo scaffolding."
     }
   ]
 }

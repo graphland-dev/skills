@@ -1,0 +1,16 @@
+{
+  "name": "project-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "mprocs"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "mprocs": "^0.9.5",
+    "typescript": "^5.9.3"
+  }
+}

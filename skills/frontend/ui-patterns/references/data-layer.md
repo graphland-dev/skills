@@ -31,7 +31,7 @@ export const entityFormSchema = z.object({ ... });
 export type EntityFormValues = z.infer<typeof entityFormSchema>;
 ```
 
-Naming: operations are `namespace__operationName` (double underscore). Single-document targeting uses `where: { key: "_id", operator: MatchOperator.Eq, value: id }`. Full example: `templates/example-module/~util.ts`; scaffold with `/graphland-ui:new-graphql-util`.
+Naming: operations are `namespace__operationName` (double underscore). Single-document targeting uses `where: { key: "_id", operator: MatchOperator.Eq, value: id }`. Full example: `templates/example-module/~util.ts`; scaffold with `/graphland:new-graphql-util`.
 
 ## TanStack Query conventions
 
