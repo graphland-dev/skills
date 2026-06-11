@@ -45,7 +45,7 @@ Confirm back in one line, e.g. *"Scaffolding **acme** — Vite console, REST API
 | Auth | API template | Console auth client | Tenancy |
 | --- | --- | --- | --- |
 | `better-auth` | `./templates/api/` (`auth/`, `UserSessionGuard`, `/auth/*`) | `better-auth/react` + `organizationClient()` — ships in `./templates/console/src/lib/auth.ts` | `organizationId` from session via `@OrganizationId()` |
-| `custom-jwt` | Scaffold from **storeos** pattern (see §2C) — no `./templates/api/auth/` | `ui-patterns/templates/lib/token-service.ts` + bearer on `gql-client` / `api-client` | `x-tenant` header + `User.memberships[]` RBAC |
+| `custom-jwt` | Scaffold from **storeos** pattern (see §2c) — **no** `./templates/api/auth/` or `./templates/api/authorization/` | `ui-patterns/templates/lib/token-service.ts` + bearer on `gql-client` / `api-client` | `x-tenant` header + `@Authenticated()` RBAC in API |
 
 | Console | API data | Console data libs | API data bootstrap |
 | --- | --- | --- | --- |
@@ -99,35 +99,75 @@ Copy `./templates/api/` into `apps/api/` (package.json, nest-cli, tsconfig, `src
 | `common/` | Database, filters, pagination DTOs, optional mail |
 | `app.controller.ts` | HATEOAS root + `/health` |
 
-**Do not copy** `./templates/api/auth/` when auth = `custom-jwt`.
-
 **No `src/api/*` feature modules yet** — add REST resources with `new-api-module` (org-scoped via `@OrganizationId()`).
+
+When auth = `custom-jwt`, skip §2b entirely — use §2c instead. **Never mix** Better Auth files with the storeos authorization stack.
 
 ### 2c. Custom JWT foundation (when auth = `custom-jwt`)
 
 Scaffold from the **storeos** pattern — stateless JWT, Passport, tenant header. Read `storeos/packages/shared-api` and `storeos/apps/core-api` as the source of truth.
 
+**Do not copy** from `./templates/api/`:
+
+- `auth/` (Better Auth)
+- `authorization/guards/user-session.guard.ts`, `organization-id.decorator.ts`, or any `@UserSessionGuard` / `@OrganizationId()` usage
+
 **API deps to add:** `@nestjs/passport`, `passport`, `passport-jwt`, `jsonwebtoken`, `bcryptjs`, `@types/passport-jwt`, `@types/bcryptjs`. Add `REDIS_URL` when OTP / forgot-password is needed.
 
-**Copy or recreate:**
+#### Authorization decorators live in the API (storeos pattern)
+
+All auth guards and param decorators stay under **`src/authorization/`** in the API app — same layout as storeos. The console only sends `Authorization: Bearer <jwt>` and `x-tenant`; it never implements permission checks.
+
+**Copy or recreate this tree:**
+
+| Path in `apps/api` | storeos reference | Exports |
+| --- | --- | --- |
+| `src/authorization/authorization.module.ts` | `packages/shared-api/src/authorization/authorization.module.ts` | `PassportModule` + `JwtStrategy` registered globally |
+| `src/authorization/passport/JwtStrategy.ts` | `packages/shared-api/.../JwtStrategy.ts` | Validates JWT → `req.user` payload (`sub`, `email`, …) |
+| `src/authorization/decorators/authenticated.decorator.ts` | `packages/shared-api/.../authenticated.decorator.ts` | `AuthenticationGuard`, `@JwtAuthenticated()` |
+| `src/authorization/decorators/user.decorator.ts` | `packages/shared-api/.../user.decorator.ts` | `@AuthenticatedUser()` param decorator |
+| `src/authorization/decorators/tenantID.decorator.ts` | `packages/shared-api/.../tenantID.decorator.ts` | `@TenantName()` from `x-tenant` header |
+| `src/authorization/authenticated.decorator.ts` | `apps/core-api/src/authorization/authenticated.decorator.ts` | `@Authenticated({ collectionName, privileges })` + `PermissionGuard` |
+
+**Decorator usage on every protected handler** (resolvers and REST controllers):
+
+```ts
+// JWT only — no RBAC (e.g. identity__me, change password)
+@JwtAuthenticated()
+@Query(() => User)
+me(@AuthenticatedUser() user: IAuthUser) { ... }
+
+// JWT + tenant-scoped RBAC — default for feature modules
+@Authenticated({ collectionName: 'products', privileges: ['read'] })
+@Query(() => ProductList)
+products(@AuthenticatedUser() user: IAuthUser, @TenantName() tenant: string) { ... }
+```
+
+`@Authenticated()` composes `AuthenticationGuard` + optional `PermissionGuard`. `PermissionGuard` loads the user from Mongo, reads `x-tenant`, resolves `memberships[].roles`, joins `identity__Role` permissions, and checks `collectionName` + `privileges` metadata — **all server-side in the API**.
+
+**Never substitute** waland/Better Auth decorators on `custom-jwt` projects:
+
+| Do not use (Better Auth) | Use instead (storeos) |
+| --- | --- |
+| `@UserSessionGuard()` | `@JwtAuthenticated()` or `@Authenticated({ ... })` |
+| `@OrganizationId()` | `@TenantName()` + filter queries by tenant UID |
+| `api-patterns/references/auth.md` | storeos `authorization/` + `identity/` modules |
+
+#### Identity + auth modules
 
 | Area | storeos reference | Purpose |
 | --- | --- | --- |
-| `authorization/authorization.module.ts` | `packages/shared-api/src/authorization/` | `PassportModule` + `JwtStrategy` |
-| `authorization/passport/JwtStrategy.ts` | same | Bearer (+ optional query) token extraction |
-| `authorization/decorators/` | `authenticated.decorator.ts`, `user.decorator.ts`, `tenantID.decorator.ts` | `@JwtAuthenticated()`, `@AuthenticatedUser()`, `@TenantName()` from `x-tenant` |
-| `api/identity/auth/` | `apps/core-api/src/api/identity/auth/` | `AuthService` (bcrypt + `jwt.sign`), login/signup resolvers or REST controller |
+| `src/api/identity/auth/` | `apps/core-api/src/api/identity/auth/` | `AuthService` (bcrypt + `jwt.sign`), login/signup resolvers or REST controller |
+| `src/api/identity/user/` | same tree | `identity__me`, user profile |
+| `src/api/identity/roles/` | same tree | `identity__Role` seed + lookup for `PermissionGuard` |
+| `src/api/identity/tenant/` | same tree | tenant CRUD / membership |
 | Identity entities | `packages/shared-api/src/entities/identity/` | `User`, `Tenant`, `Role`, `Permission`, `memberships[]` embed |
-| RBAC guard | `apps/core-api/src/authorization/authenticated.decorator.ts` | `PermissionGuard` — collection + privilege checks per tenant role |
-| `config/` | `JWT_SECRET` in Joi schema | Required at boot |
 
-**`main.ts` differences from Better Auth:** use the default Nest body parser (no `bodyParser: false`). No `/auth/*` Better Auth mount.
+**`main.ts`:** default Nest body parser (no `bodyParser: false`). No `/auth/*` Better Auth mount.
 
-**Tenancy:** every protected resolver/controller reads tenant from `x-tenant` (tenant UID), loads the user's `memberships[]` entry, and checks `identity__Role` permissions — **not** `@OrganizationId()` from a session plugin.
+**GraphQL auth mutations** (storeos style): `identity__login`, `identity__signup`, `identity__me` — scaffold before feature modules. When API data = `rest` only, expose equivalent login/me REST endpoints.
 
-**GraphQL auth mutations** (storeos style): `identity__login`, `identity__signup`, `identity__me` — scaffold `AuthResolver` + `AuthService` before feature modules.
-
-When API data layer = `rest` only, expose equivalent login/me endpoints as REST controllers instead of GraphQL mutations.
+**Feature modules:** hand-scaffold resolvers/controllers with `@Authenticated()` — **do not** use `new-api-module` (it emits `@UserSessionGuard` + `@OrganizationId()`).
 
 ### 2d. GraphQL layer (when API data = `graphql` or `both`)
 
@@ -137,8 +177,8 @@ After REST foundation is in place:
 2. Add `GraphQLModule.forRoot` in `AppModule` (code-first or schema-first — match the org's existing Nest GraphQL convention if one exists; otherwise code-first with auto schema).
 3. Mount at `/graphql`; enable playground/introspection in development.
 4. Org/tenant scoping on resolvers:
-   - `better-auth` → `organizationId` from `@UserSessionGuard` / `@OrganizationId()` (`api-patterns/references/auth.md`)
-   - `custom-jwt` → tenant UID from `x-tenant` + `PermissionGuard` (storeos pattern)
+   - `better-auth` → `@UserSessionGuard()` + `@OrganizationId()` (`api-patterns/references/auth.md`)
+   - `custom-jwt` → `@Authenticated({ collectionName, privileges })` + `@TenantName()` — authorization decorators stay in `src/authorization/` per §2c
 5. Pagination: expose the same meta shape the console `DataTable` expects (`totalCount`, `totalPages`, etc.) — see `ui-patterns/references/data-layer.md`.
 6. When `both`: keep REST controllers for M2M/simple resources; add GraphQL for console list/mutation-heavy features. Document which surface each module uses in the root README.
 
@@ -246,9 +286,9 @@ Record the full intake (framework, API data, auth) in the root README, then scaf
 | --- | --- | --- | --- |
 | `better-auth` | `rest` | `new-api-module` | `new-module` |
 | `better-auth` | `graphql` | GraphQL resolvers + `new-graphql-util` | `new-module` |
-| `custom-jwt` | `graphql` | identity + feature resolvers (storeos pattern) | `new-module` + `new-graphql-util`; guards use `x-tenant` |
-| `custom-jwt` | `rest` | REST controllers + JWT guard | `new-module` with REST `~util.ts` |
+| `custom-jwt` | `graphql` | identity + feature resolvers with `@Authenticated()` | `new-module` + `new-graphql-util`; client sends `x-tenant` |
+| `custom-jwt` | `rest` | REST controllers with `@Authenticated()` | `new-module` with REST `~util.ts` |
 
-`new-api-module` assumes Better Auth + `@OrganizationId()` — **do not use** for `custom-jwt` without adapting guards to the storeos tenancy model.
+`new-api-module` is **Better Auth only** (`@UserSessionGuard`, `@OrganizationId()`). For `custom-jwt`, feature handlers must use the storeos authorization decorators from `src/authorization/` — never port waland guards onto a JWT stack.
 
 For Vite + `better-auth` consoles created by this skill, **do not** re-run `setup-foundation` — foundation is already in `./templates/console/`. Use `setup-foundation` for Next.js consoles or late additions to existing apps.
