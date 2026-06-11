@@ -7,7 +7,7 @@ description: GraphLand's common UI guideline — canonical patterns and ready-to
 
 The company-wide UI guideline, extracted from the production Banik console. Canonical stack: React + Vite + TanStack Router/Query + shadcn/ui + Tailwind. Every pattern has an **Adaptation** section in its reference doc for Next.js, React Router, or REST backends — read [references/adaptation.md](references/adaptation.md) before applying the patterns outside the canonical stack.
 
-**Foundation not installed yet?** Run `/graphland:setup-foundation` (or follow it manually) before scaffolding pages. Templates live in [templates/](templates/) — copy them verbatim rather than re-deriving them.
+**Foundation not installed yet?** Run the `setup-foundation` skill (or follow it manually) before scaffolding pages. Templates live in [templates/](templates/) — copy them verbatim rather than re-deriving them.
 
 ## Pattern map
 
@@ -29,4 +29,4 @@ The company-wide UI guideline, extracted from the production Banik console. Cano
 
 ## End-to-end example
 
-`templates/example-module/` is a complete generic CRUD module — list page (`index.tsx`), `~util.ts`, form sheet, and filter sheet wired together. When building a new module, start from it (or run `/graphland:new-module`).
+`templates/example-module/` is a complete generic CRUD module — list page (`index.tsx`), `~util.ts`, form sheet, and filter sheet wired together. When building a new module, start from it (or run the `new-module` skill).

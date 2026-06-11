@@ -5,9 +5,11 @@ argument-hint: [graphql|rest]
 disable-model-invocation: true
 ---
 
-Install the GraphLand UI foundation into the current project. Data-layer variant from arguments (default `graphql`): **$ARGUMENTS**
+> **Locating sibling skills:** paths like `ui-patterns/...` or `api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
-Before starting, read the guideline's adaptation notes at `${CLAUDE_PLUGIN_ROOT}/skills/frontend/ui-patterns/references/adaptation.md` and detect the project's stack (Vite vs Next.js, router, whether shadcn is initialized, package manager). If the project is not React + Tailwind, stop and tell the user this guideline targets React.
+Install the GraphLand UI foundation into the current project. Data-layer variant from arguments (default `graphql` if empty/unsubstituted): **$ARGUMENTS**
+
+Before starting, read the guideline's adaptation notes at `ui-patterns/references/adaptation.md` and detect the project's stack (Vite vs Next.js, router, whether shadcn is initialized, package manager). If the project is not React + Tailwind, stop and tell the user this guideline targets React.
 
 ## 1. Dependencies
 
@@ -27,7 +29,7 @@ npx shadcn@latest add @reui/data-grid @reui/data-grid-table @reui/data-grid-pagi
 
 The CLI may prompt to overwrite existing shadcn components (e.g. `popover`, `select`) the grid depends on — accept (`--overwrite`) so the grid's expected versions are installed. Two post-install notes: (1) ReUI's grid source uses runtime imports for some types, which trips `verbatimModuleSyntax: true` (Vite's default) with `TS1484` errors confined to `src/components/reui/data-grid/*` — either set `"verbatimModuleSyntax": false` in tsconfig or run a one-pass codemod to make those `import type`; the GraphLand templates themselves are clean. (2) The grid pulls `@reui/badge` and a `spinner` component into `src/components/`.
 
-## 2. Copy foundation files from `${CLAUDE_PLUGIN_ROOT}/skills/frontend/ui-patterns/templates/`
+## 2. Copy foundation files from `ui-patterns/templates/`
 
 | From templates/ | To project |
 | --- | --- |
@@ -67,4 +69,4 @@ For the graphql variant, ensure the backend URL env var is set (`VITE_BACKEND_BA
 
 ## 4. Verify
 
-Run the project's TypeScript check (`tsc --noEmit` or the build script). Fix any import-path issues. Then suggest scaffolding the first screen with `/graphland:new-module`.
+Run the project's TypeScript check (`tsc --noEmit` or the build script). Fix any import-path issues. Then suggest scaffolding the first screen with the `new-module` skill.

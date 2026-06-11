@@ -5,9 +5,9 @@ description: GraphLand's NestJS backend guideline — feature-module anatomy (co
 
 # GraphLand API Patterns (NestJS)
 
-The company backend guideline, extracted from the production waland API. Canonical stack: **NestJS 11 (REST) + MongoDB/Mongoose + Better Auth (orgs) + class-validator + Swagger**, run with Bun in dev. For the monorepo around it, see `/graphland:setup-workspace`; for the frontend consuming it, see the `frontend/ui-patterns` skill.
+The company backend guideline, extracted from the production waland API. Canonical stack: **NestJS 11 (REST) + MongoDB/Mongoose + Better Auth (orgs) + class-validator + Swagger**, run with Bun in dev. For the monorepo around it, see the `setup-workspace` skill; for the frontend consuming it, see the `frontend/ui-patterns` skill.
 
-**Copy, don't re-derive**: `templates/example-module/` is a complete generic org-scoped CRUD feature (entity, DTOs, repository, service, controller, module) and `templates/common/` holds the shared pieces (pagination DTOs, exception filter, bootstrap `main.ts`, Joi env schema, config factories, `@OrganizationId()` decorator). Scaffold new features with `/graphland:new-api-module`.
+**Copy, don't re-derive**: `templates/example-module/` is a complete generic org-scoped CRUD feature (entity, DTOs, repository, service, controller, module) and `templates/common/` holds the shared pieces (pagination DTOs, exception filter, bootstrap `main.ts`, Joi env schema, config factories, `@OrganizationId()` decorator). Scaffold new features with the `new-api-module` skill.
 
 ## Pattern map
 

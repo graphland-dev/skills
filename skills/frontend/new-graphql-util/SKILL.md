@@ -5,9 +5,11 @@ argument-hint: <EntityName> <namespace>
 disable-model-invocation: true
 ---
 
-Generate a `~util.ts` for an entity following the GraphLand data-layer conventions (`${CLAUDE_PLUGIN_ROOT}/skills/frontend/ui-patterns/references/data-layer.md`).
+> **Locating sibling skills:** paths like `ui-patterns/...` or `api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
-**Arguments:** $ARGUMENTS
+Generate a `~util.ts` for an entity following the GraphLand data-layer conventions (`ui-patterns/references/data-layer.md`).
+
+**Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
 **Format:** `<EntityName> <namespace>` — e.g. `Account accounting` · `Product inventory`
 
 Ask the user:
@@ -17,7 +19,7 @@ Ask the user:
 
 ## Generate
 
-Start from `${CLAUDE_PLUGIN_ROOT}/skills/frontend/ui-patterns/templates/example-module/~util.ts`, substituting `Entity`/`entity`/`entities` and `Namespace`/`namespace`. Conventions to preserve:
+Start from `ui-patterns/templates/example-module/~util.ts`, substituting `Entity`/`entity`/`entities` and `Namespace`/`namespace`. Conventions to preserve:
 
 - Operations named `namespace__operationName` (double underscore).
 - List query takes `$where: CommonPaginationDto` and returns `{ meta { currentPage hasNextPage totalCount totalPages } nodes { ... } }`.

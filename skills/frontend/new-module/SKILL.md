@@ -5,20 +5,22 @@ argument-hint: <route-path> <EntityName>
 disable-model-invocation: true
 ---
 
+> **Locating sibling skills:** paths like `ui-patterns/...` or `api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
+
 Scaffold a full CRUD list module following the GraphLand UI guideline.
 
-**Arguments:** $ARGUMENTS
+**Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
 **Format:** `<route-path> <EntityName>` — e.g. `products/services Service` · `employees/departments Department`
 
 ## 0. Preconditions
 
-- Verify the foundation exists (`src/components/table/data-table.tsx`, `src/components/reui/data-grid/`, `src/components/form/`, `src/hooks/use-confirm.tsx`). If missing, stop and point the user to `/graphland:setup-foundation`.
-- Detect the router and data layer. The canonical example targets TanStack Router + GraphQL; for Next.js/React Router or REST, apply the swaps in `${CLAUDE_PLUGIN_ROOT}/skills/frontend/ui-patterns/references/adaptation.md` while keeping the structure identical.
+- Verify the foundation exists (`src/components/table/data-table.tsx`, `src/components/reui/data-grid/`, `src/components/form/`, `src/hooks/use-confirm.tsx`). If missing, stop and point the user to the `setup-foundation` skill.
+- Detect the router and data layer. The canonical example targets TanStack Router + GraphQL; for Next.js/React Router or REST, apply the swaps in `ui-patterns/references/adaptation.md` while keeping the structure identical.
 - Derive the plural from EntityName (`Service` → `services`). For GraphQL, ask the user for the API namespace if not obvious (operations are `namespace__entities`, etc.).
 
 ## 1. Generate the four files
 
-Copy the canonical example from `${CLAUDE_PLUGIN_ROOT}/skills/frontend/ui-patterns/templates/example-module/` into the route folder, substituting every occurrence of `Entity`/`entity`/`entities` with the real entity name and `Namespace`/`namespace` with the real namespace:
+Copy the canonical example from `ui-patterns/templates/example-module/` into the route folder, substituting every occurrence of `Entity`/`entity`/`entities` with the real entity name and `Namespace`/`namespace` with the real namespace:
 
 | Template | Target (canonical stack) |
 | --- | --- |

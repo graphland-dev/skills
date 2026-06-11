@@ -5,14 +5,16 @@ argument-hint: <route-path> <EntityName>
 disable-model-invocation: true
 ---
 
-Scaffold a full-page form following the GraphLand UI guideline. Sheets (see `/graphland:new-module`) are the default for simple CRUD — use a full page only when the entity has many fields, multiple logical sections, or line items.
+> **Locating sibling skills:** paths like `ui-patterns/...` or `api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
-**Arguments:** $ARGUMENTS
+Scaffold a full-page form following the GraphLand UI guideline. Sheets (see the `new-module` skill) are the default for simple CRUD — use a full page only when the entity has many fields, multiple logical sections, or line items.
+
+**Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
 **Format:** `<route-path> <EntityName>` — e.g. `invoices/create Invoice` · `purchases/create Purchase`
 
 ## 0. Preconditions and questions
 
-- Verify the foundation exists (`src/components/form/`); if not, point to `/graphland:setup-foundation`.
+- Verify the foundation exists (`src/components/form/`); if not, point to the `setup-foundation` skill.
 - Ask the user:
   1. **Create-only**, or also **edit mode** (loaded from a URL param like `$entityId`)?
   2. The **GraphQL namespace** (or REST endpoints if the project is REST).
@@ -20,13 +22,13 @@ Scaffold a full-page form following the GraphLand UI guideline. Sheets (see `/gr
 
 ## 1. Generate
 
-**File 1 — `~util.ts`** in the route folder: create mutation (+ get-by-id query and update mutation if edit mode) and the Zod schema, following `/graphland:new-graphql-util` conventions. For line items: `items: z.array(z.object({ productId: z.string().min(1), quantity: z.coerce.number().min(1), unitPrice: z.coerce.number().min(0) })).min(1, "At least one item is required")`.
+**File 1 — `~util.ts`** in the route folder: create mutation (+ get-by-id query and update mutation if edit mode) and the Zod schema, following the `new-graphql-util` skill conventions. For line items: `items: z.array(z.object({ productId: z.string().min(1), quantity: z.coerce.number().min(1), unitPrice: z.coerce.number().min(0) })).min(1, "At least one item is required")`.
 
 **File 2 — `index.tsx`**, structured as:
 
 - `PageHeader` with title + a Back button navigating to the parent list route.
 - `<Form {...form}>` with `FormErrorAlert` at the top fed by `getMutationErrorMessage(createMutation)`.
-- One shadcn `Card` per logical section (Basic Information, Line Items, Notes, …) containing `FormField*` components (catalog: `${CLAUDE_PLUGIN_ROOT}/skills/frontend/ui-patterns/references/forms.md`).
+- One shadcn `Card` per logical section (Basic Information, Line Items, Notes, …) containing `FormField*` components (catalog: `ui-patterns/references/forms.md`).
 - Line items section: `useFieldArray` rows with add/remove buttons and computed totals.
 - Submit bar at the bottom: Cancel (navigates back) + Save with pending state (`Saving...`).
 - `onSuccess`: invalidate the entity's list query by prefix, then navigate to the list route.

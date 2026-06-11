@@ -5,20 +5,22 @@ argument-hint: <EntityName>
 disable-model-invocation: true
 ---
 
-Scaffold a feature module following the GraphLand API guideline (`${CLAUDE_PLUGIN_ROOT}/skills/backend/api-patterns/SKILL.md`).
+> **Locating sibling skills:** paths like `ui-patterns/...` or `api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
-**Arguments:** $ARGUMENTS
+Scaffold a feature module following the GraphLand API guideline (`api-patterns/SKILL.md`).
+
+**Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
 **Format:** `<EntityName>` — e.g. `Project` · `Invoice` · `Webhook`
 
 ## 0. Preconditions
 
-- Verify this is a NestJS app with the common foundation (`src/common/common-models/pagination.dto.ts`, `src/common/filters/http-exception.filter.ts`, `@/` path alias). If missing, copy the pieces from `${CLAUDE_PLUGIN_ROOT}/skills/backend/api-patterns/templates/common/` first (targets: `common-models/`, `filters/`, `decorators/`, `src/config/`, `src/main.ts` patterns).
+- Verify this is a NestJS app with the common foundation (`src/common/common-models/pagination.dto.ts`, `src/common/filters/http-exception.filter.ts`, `@/` path alias). If missing, copy the pieces from `api-patterns/templates/common/` first (targets: `common-models/`, `filters/`, `decorators/`, `src/config/`, `src/main.ts` patterns).
 - Derive names: `Project` → folder `src/api/project/`, route `v1/projects`, collection `projects`.
 - Ask the user for the entity's **fields** (name/type/required) and whether any **status enum** or **cross-field rules** apply; also whether endpoints are dashboard-only (`@UserSessionGuard`), M2M (`@ApiKeyGuard`), or mixed (see `references/auth.md`).
 
 ## 1. Generate the module
 
-Copy `${CLAUDE_PLUGIN_ROOT}/skills/backend/api-patterns/templates/example-module/` into `src/api/<feature>/`, substituting every `Entity`/`entity`/`entities` with the real name, then extend with real fields:
+Copy `api-patterns/templates/example-module/` into `src/api/<feature>/`, substituting every `Entity`/`entity`/`entities` with the real name, then extend with real fields:
 
 | Template file | Fill in |
 | --- | --- |

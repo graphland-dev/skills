@@ -5,14 +5,16 @@ argument-hint: <route-path> <EntityName>
 disable-model-invocation: true
 ---
 
-Scaffold a view sheet — a read-only right-side panel opened from a list row, with a tab strip. Pattern reference: `${CLAUDE_PLUGIN_ROOT}/skills/frontend/ui-patterns/references/sheets.md` (View sheet section).
+> **Locating sibling skills:** paths like `ui-patterns/...` or `api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
-**Arguments:** $ARGUMENTS
+Scaffold a view sheet — a read-only right-side panel opened from a list row, with a tab strip. Pattern reference: `ui-patterns/references/sheets.md` (View sheet section).
+
+**Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
 **Format:** `<route-path> <EntityName>` — e.g. `clients Client` · `suppliers Supplier`
 
 ## 0. Preconditions and questions
 
-- Verify the foundation exists (`src/components/table/data-table.tsx` + ReUI data-grid in `src/components/reui/data-grid/`, sheet components); if not, point to `/graphland:setup-foundation`.
+- Verify the foundation exists (`src/components/table/data-table.tsx` + ReUI data-grid in `src/components/reui/data-grid/`, sheet components); if not, point to the `setup-foundation` skill.
 - Ask the user:
   1. Which **related record tabs** (e.g. invoices, payments)? If none, generate Basic Info only.
   2. The **GraphQL namespace** for related queries (or REST endpoints).
