@@ -72,6 +72,8 @@ Use setup-workspace to bootstrap "acme".
 Console: Vite
 API data: REST
 Auth: Better Auth
+Multi-tenant: yes
+Workspace route: merchant
 
 Copy templates from the skill pack and verify both apps build.
 ```
@@ -124,19 +126,23 @@ new-graphql-util Product inventory
 | Console | `vite` · `nextjs` | `vite` |
 | API data | `rest` · `graphql` · `both` | `rest` |
 | Auth | `better-auth` · `custom-jwt` | `better-auth` |
+| Multi-tenant | `yes` · `no` | `yes` |
+| Workspace route | URL segment for signed-in dashboard | `merchant` if multi-tenant · `app` if single-tenant |
 
 **Stack rules:** Vite → TanStack Router + TanStack Query. Next.js → App Router + TanStack Query.
 
-| Auth | Templates to copy |
-| --- | --- |
-| `better-auth` | `templates/api/` + `templates/console/` |
-| `custom-jwt` | `templates/api-jwt/` + `templates/console-jwt/` |
+| Auth | Multi-tenant | Templates | Tenancy |
+| --- | --- | --- | --- |
+| `better-auth` | yes | `templates/api/` + `templates/console/` | org plugin, `@OrganizationId()` |
+| `better-auth` | no | same templates, stripped per skill §2f | session + `userId` scoping only |
+| `custom-jwt` | yes | `templates/api-jwt/` + `templates/console-jwt/` | `x-tenant`, tenant membership RBAC |
+| `custom-jwt` | no | same templates, stripped per skill §2f | JWT + `systemRoles` only, no `x-tenant` |
 
 ## Architecture
 
-**Better Auth path:** bun workspace, NestJS API with org tenancy, Vite console with TanStack Router/Query, shadcn, sheet CRUD, `DataTable`.
+**Better Auth path:** bun workspace, NestJS API, Vite console with TanStack Router/Query, shadcn, sheet CRUD, `DataTable`. Multi-tenant adds org plugin + org switcher; single-tenant drops org/tenant scoping.
 
-**Custom JWT path:** GraphQL API with Passport + `@Authenticated()` RBAC, console with JWT in localStorage + `x-tenant` header.
+**Custom JWT path:** GraphQL API with Passport + `@Authenticated()` RBAC. Multi-tenant adds `x-tenant` and tenant membership permissions; single-tenant uses user-level roles only.
 
 ## Maintaining this repo
 

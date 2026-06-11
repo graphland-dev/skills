@@ -1,5 +1,7 @@
 # Auth & multi-tenancy — Better Auth + org-scoped guards
 
+> **Single-tenant projects:** skip the org plugin, `@OrganizationId()`, and `organizationId` on entities. Scope by authenticated `userId` instead. See `setup-workspace` skill §2f.
+
 ## The model
 
 - **Better Auth** (`better-auth` + `@thallesp/nestjs-better-auth`) owns users, sessions, and organizations: email/password plus optional GitHub/Google OAuth, with the `organization()` plugin providing orgs, invitations, and roles (owner/member). Auth endpoints mount under `/auth/*`; an OpenAPI reference is served at `/auth/reference`.

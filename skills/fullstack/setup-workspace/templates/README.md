@@ -28,6 +28,8 @@ All reference code for greenfield monorepos lives in this directory. **No extern
 | `better-auth` | `nextjs` | `api/` + scaffold Next manually + `setup-foundation` skill |
 | `custom-jwt` | `nextjs` | `api-jwt/` + adapt `console-jwt/src/lib/*` to Next |
 
+Templates ship **multi-tenant** defaults (`/merchant`, org switcher, `x-tenant` on JWT). For **single-tenant** projects, follow `setup-workspace` skill §2f and §3A-e to strip org/tenant wiring and rename the workspace route (default single-tenant path: `/app`).
+
 ## `api/` — Better Auth API
 
 - `src/auth/` — Better Auth + organization plugin
