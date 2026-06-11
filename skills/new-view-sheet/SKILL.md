@@ -12,7 +12,7 @@ Scaffold a view sheet — a read-only right-side panel opened from a list row, w
 
 ## 0. Preconditions and questions
 
-- Verify the foundation exists (`AppDataTable`, sheet components); if not, point to `/graphland-ui:setup-foundation`.
+- Verify the foundation exists (ReUI data-grid in `src/components/reui/data-grid/`, sheet components); if not, point to `/graphland-ui:setup-foundation`.
 - Ask the user:
   1. Which **related record tabs** (e.g. invoices, payments)? If none, generate Basic Info only.
   2. The **GraphQL namespace** for related queries (or REST endpoints).
@@ -33,7 +33,7 @@ Structure:
 - `Sheet` with `SheetContent side="right" className="sm:max-w-2xl overflow-y-auto"`; title = entity name with an Edit button that opens the existing `EntityFormSheet` (render it inside this component, passing the entity).
 - Tab strip via `useState<TabType>("basic")` with icon buttons (lucide icons per tab).
 - **Basic Info tab**: a two-column label/value grid of the entity's fields; format dates with the project's date helper and money with the project's format helper.
-- **Related record tab(s)**: one `AppDataTable` per tab with its own local `useState` pagination (`page`, `pageSize`), backed by a `useQuery` filtered to the entity (`filters: [{ key: "<entityRef>", operator: Eq, value: entity._id }]`), `enabled: open && activeTab === "<tab>" && !!entity?._id`.
+- **Related record tab(s)**: one ReUI DataGrid per tab — its own `useReactTable` (manual pagination, local `useState<PaginationState>`, not URL state since this is a panel), backed by a `useQuery` filtered to the entity (`filters: [{ key: "<entityRef>", operator: Eq, value: entity._id }]`), `enabled: open && activeTab === "<tab>" && !!entity?._id`. Compose `DataGrid > DataGridContainer > DataGridTable` + `DataGridPagination` per `references/data-table.md`.
 - Guard all queries on `open` and `entity?._id` so nothing fetches while closed.
 
 Wire into the list page: a `useState<Entity | null>` for the viewed entity, opened via `onRowClick` or a View action button.

@@ -14,7 +14,7 @@ The company-wide UI guideline, extracted from the production Banik console. Cano
 | Pattern | Use when | Reference | Templates |
 | --- | --- | --- | --- |
 | Forms | Any user input — schema-first validation with Zod + React Hook Form, rendered with `FormField*` wrappers | [references/forms.md](references/forms.md) | `templates/form/` |
-| Data table | Any list page — `AppDataTable` with server-side pagination/sort/debounced-search driven by URL search params | [references/data-table.md](references/data-table.md) | `templates/table/` |
+| Data table | Any list page — ReUI DataGrid (registry-installed) in TanStack manual mode, with server-side pagination/sort/debounced-search driven by URL search params | [references/data-table.md](references/data-table.md) | `templates/table/` |
 | Sheets | Create/edit, filters, and read-only detail views as right-side panels instead of separate routes | [references/sheets.md](references/sheets.md) | `templates/example-module/` |
 | Data layer | GraphQL via the tiny `gqlClient` + co-located `~util.ts` per route (optional — REST variant documented) | [references/data-layer.md](references/data-layer.md) | `templates/lib/` |
 | Hooks | Imperative confirm dialogs (`useConfirmation`), i18n (`useI18N`), responsive checks (`useIsMobile`) | [references/hooks.md](references/hooks.md) | `templates/hooks/` |

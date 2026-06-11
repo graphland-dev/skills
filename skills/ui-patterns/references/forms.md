@@ -60,4 +60,4 @@ All wrappers take `control={form.control}` and `name` (typed against the schema)
 
 - **No GraphQL**: the schema/wrapper pattern is data-layer independent; only where `~util.ts` lives changes (keep schema next to whatever fetch functions you write).
 - **Next.js**: wrappers are client components (`"use client"` at usage site). Server Actions can re-validate with the same Zod schema on the server — export it from a shared module.
-- **Missing shadcn pieces**: wrappers require shadcn `form`, `input`, `textarea`, `checkbox`, `radio-group`, `slider`, `label`, `popover`, `command`, `calendar`, `tooltip`, `skeleton` components (see setup-foundation).
+- **Missing shadcn pieces**: wrappers require shadcn `input`, `textarea`, `checkbox`, `radio-group`, `slider`, `label`, `popover`, `command`, `calendar`, `tooltip`, `skeleton` components plus the bundled `templates/ui/form.tsx` (the RHF `<Form*>` primitives — the current shadcn registry no longer ships them; see setup-foundation).

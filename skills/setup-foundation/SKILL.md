@@ -16,7 +16,13 @@ Install (with the project's package manager): `react-hook-form`, `@hookform/reso
 If shadcn/ui is not initialized, run `npx shadcn@latest init` first. Then add the required components:
 
 ```
-npx shadcn@latest add button input textarea checkbox radio-group slider label form sheet dialog table popover command calendar skeleton tooltip dropdown-menu select card separator alert
+npx shadcn@latest add button input textarea checkbox radio-group slider label sheet dialog table popover command calendar skeleton tooltip dropdown-menu select card separator alert
+```
+
+Then install the ReUI DataGrid (the standard GraphLand data table) from the ReUI registry — it lands in `src/components/reui/data-grid/` and pulls its own deps (`@dnd-kit/*`, `@tanstack/react-virtual`):
+
+```
+npx shadcn@latest add @reui/data-grid @reui/data-grid-table @reui/data-grid-pagination @reui/data-grid-scroll-area @reui/data-grid-column-header @reui/data-grid-column-visibility
 ```
 
 ## 2. Copy foundation files from `${CLAUDE_PLUGIN_ROOT}/skills/ui-patterns/templates/`
@@ -24,8 +30,10 @@ npx shadcn@latest add button input textarea checkbox radio-group slider label fo
 | From templates/ | To project |
 | --- | --- |
 | `form/*` | `src/components/form/` |
-| `table/*` | `src/components/table/` |
-| `ui/combobox.tsx`, `ui/date-picker-popover.tsx`, `ui/page-header.tsx` | `src/components/ui/` |
+| `table/*` (`data-grid-toolbar.tsx`, `table-utils.ts`, `filter-sheet.tsx`, `filter-combobox.tsx`) | `src/components/table/` |
+| `ui/combobox.tsx`, `ui/date-picker-popover.tsx`, `ui/page-header.tsx`, `ui/form.tsx` | `src/components/ui/` |
+
+Note: `ui/form.tsx` (the React Hook Form `<Form*>` primitives) must be copied — the current shadcn registry no longer ships a `form` item.
 | `hooks/*` | `src/hooks/` |
 | `lib/date-format.ts` | `src/lib/` |
 | `lib/gql-client.ts`, `lib/token-service.ts` | `src/lib/` — **graphql variant only** |
@@ -36,6 +44,10 @@ For the `rest` variant, skip gql-client/token-service and tell the user to keep 
 Adjust if needed:
 - No `@/` path alias → add one to tsconfig/vite config (preferred) or rewrite imports.
 - Next.js → apply the swaps in `references/adaptation.md` (`"use client"`, `NEXT_PUBLIC_BACKEND_BASE_URL`, `_components/` naming).
+
+Known gotchas (verified against a fresh Vite + latest-shadcn project):
+- ReUI's installed sources don't use type-only imports and have one unused variable — if the project's tsconfig enables `verbatimModuleSyntax` or `noUnusedLocals`, either relax those flags or fix the ReUI files after install.
+- If shadcn's `calendar.tsx` type-errors against the installed `react-day-picker`, pin `react-day-picker@^9` (the foundation's date components target the v9+ API: `startMonth`/`endMonth`, `disabled` matchers, `autoFocus`).
 
 ## 3. Wire providers at the app root
 

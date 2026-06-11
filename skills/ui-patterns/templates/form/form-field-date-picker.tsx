@@ -243,10 +243,16 @@ export function FormFieldDatePicker<
                     mode="single"
                     selected={dateValue}
                     onSelect={(date) => handleDateChange(date, "calendar")}
-                    disabled={disabled}
-                    fromDate={fromDate}
-                    toDate={toDate}
-                    initialFocus
+                    disabled={
+                      disabled ||
+                      [
+                        ...(fromDate ? [{ before: fromDate }] : []),
+                        ...(toDate ? [{ after: toDate }] : []),
+                      ]
+                    }
+                    startMonth={fromDate}
+                    endMonth={toDate}
+                    autoFocus
                   />
                 </PopoverContent>
               </Popover>
@@ -359,10 +365,16 @@ function EditableDateTimePicker({
               onDateChange(date, "calendar");
               setOpen(false);
             }}
-            disabled={disabled}
-            fromDate={fromDate}
-            toDate={toDate}
-            initialFocus
+            disabled={
+              disabled ||
+              [
+                ...(fromDate ? [{ before: fromDate }] : []),
+                ...(toDate ? [{ after: toDate }] : []),
+              ]
+            }
+            startMonth={fromDate}
+            endMonth={toDate}
+            autoFocus
           />
           {showTime ? (
             <div className="flex flex-wrap gap-2 border-t px-3 pb-3 pt-2">

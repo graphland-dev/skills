@@ -102,10 +102,16 @@ export function DatePickerPopover({
             commitDate(date);
             setOpen(false);
           }}
-          disabled={disabled}
-          fromDate={fromDate}
-          toDate={toDate}
-          initialFocus
+          disabled={
+            disabled ||
+            [
+              ...(fromDate ? [{ before: fromDate }] : []),
+              ...(toDate ? [{ after: toDate }] : []),
+            ]
+          }
+          startMonth={fromDate}
+          endMonth={toDate}
+          autoFocus
         />
         {allowClear && value ? (
           <div className="border-t p-2">

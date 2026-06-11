@@ -5,7 +5,7 @@ The canonical stack is **React + Vite + TanStack Router + TanStack Query + shadc
 ## What is stack-agnostic (no changes ever)
 
 - All of `templates/form/`, `templates/ui/`, `templates/hooks/`, `templates/table/filter-sheet.tsx`, `templates/table/filter-combobox.tsx`
-- `templates/table/app-datatable.tsx` — fully controlled, no router/data dependency
+- `templates/table/data-grid-toolbar.tsx` and the registry-installed ReUI DataGrid — no router/data dependency
 - The Zod schema + `z.infer` convention, the `entity?: T | null` sheet convention, query-key conventions
 
 ## Router swaps (affects only page files like `example-module/index.tsx`)
@@ -32,7 +32,7 @@ See [data-layer.md](data-layer.md) → Adaptation. Summary: REST projects drop `
 
 ## Design-system swaps
 
-The templates assume shadcn/ui with the `@/` path alias and a `cn()` helper in `@/lib/utils`. Required shadcn components: `button`, `input`, `textarea`, `checkbox`, `radio-group`, `slider`, `label`, `form`, `sheet`, `dialog`, `table`, `popover`, `command`, `calendar`, `skeleton`, `tooltip`, `dropdown-menu`, `select`, `card`, `separator`, `alert`. Banik's console also defines extra Button variants (e.g. `link-destructive`) — the templates here use only stock variants.
+The templates assume shadcn/ui with the `@/` path alias and a `cn()` helper in `@/lib/utils`. Required shadcn components: `button`, `input`, `textarea`, `checkbox`, `radio-group`, `slider`, `label`, `sheet`, `dialog`, `table`, `popover`, `command`, `calendar`, `skeleton`, `tooltip`, `dropdown-menu`, `select`, `card`, `separator`, `alert` (the RHF `form` primitives are bundled as `templates/ui/form.tsx` since the registry retired them). The data grid comes from the ReUI registry (`npx shadcn@latest add @reui/data-grid …`, see [data-table.md](data-table.md)) and brings its own deps (`@dnd-kit/*`, `@tanstack/react-virtual`). Banik's console also defines extra Button variants (e.g. `link-destructive`) — the templates here use only stock variants.
 
 ## Sync policy
 

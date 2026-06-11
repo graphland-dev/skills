@@ -16,7 +16,7 @@ GraphLand's company-wide UI guideline as a [Claude Code plugin](https://docs.cla
 ## The patterns
 
 1. **Forms** — React Hook Form + Zod via `zodResolver`, rendered with `FormField*` wrapper components. One Zod schema per entity, co-located with its GraphQL operations.
-2. **Data table** — `AppDataTable`: server-side pagination, sorting, and debounced search, all driven by **URL search params** so list state is shareable and survives reloads.
+2. **Data table** — [ReUI DataGrid](https://reui.io/docs/data-grid) composed natively (`useReactTable` in manual mode): server-side pagination, sorting, and debounced search, all driven by **URL search params** so list state is shareable and survives reloads.
 3. **Sheets over routes for CRUD** — create/edit happens in a right-side `Sheet`; a single component handles both modes via an `entity?: T | null` prop. Filters and read-only detail views are sheets too.
 4. **Data layer** — a tiny fetch-based GraphQL client (`gql = String.raw`, no runtime GraphQL dependency) wrapped in TanStack Query; each route keeps its operations in a co-located `~util.ts`.
 5. **Hooks** — `useConfirmation` for imperative confirm dialogs, `useI18N` for translations keyed by English strings, `useIsMobile`.

@@ -216,7 +216,11 @@ export function FilterSheet({
         <SheetFooter className="flex flex-col gap-2 mt-6">
           <Button onClick={() => onOpenChange(false)}>Apply Filters</Button>
           {activeFilterCount > 0 && (
-            <Button variant="link-destructive" onClick={handleClearAll} className="w-full">
+            <Button
+              variant="ghost"
+              onClick={handleClearAll}
+              className="w-full text-destructive hover:text-destructive"
+            >
               Clear All Filters ({activeFilterCount})
             </Button>
           )}

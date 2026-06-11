@@ -2,8 +2,6 @@ import { gql } from "@/lib/gql-client";
 import { z } from "zod";
 
 // With GraphQL codegen, import these from your generated types instead.
-// Must be type aliases (not interfaces): AppDataTable's rows are constrained to
-// Record<string, unknown>, which interfaces don't satisfy.
 export type Entity = {
   _id: string;
   name: string;

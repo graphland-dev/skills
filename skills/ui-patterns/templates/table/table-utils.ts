@@ -3,23 +3,27 @@
 //   import type { CommonFindDocumentDto } from "@/gql-types/graphql";
 //   import { MatchOperator, SortType } from "@/gql-types/graphql";
 
-export enum MatchOperator {
-  Contains = "contains",
-  Eq = "eq",
-  Exists = "exists",
-  Gt = "gt",
-  Gte = "gte",
-  In = "in",
-  Lt = "lt",
-  Lte = "lte",
-  Ne = "ne",
-  Nin = "nin",
-}
+// const objects instead of TS enums so the file works with `erasableSyntaxOnly`
+// (the default in new Vite projects) and accepts codegen'd plain-string values.
+export const MatchOperator = {
+  Contains: "contains",
+  Eq: "eq",
+  Exists: "exists",
+  Gt: "gt",
+  Gte: "gte",
+  In: "in",
+  Lt: "lt",
+  Lte: "lte",
+  Ne: "ne",
+  Nin: "nin",
+} as const;
+export type MatchOperator = (typeof MatchOperator)[keyof typeof MatchOperator];
 
-export enum SortType {
-  Asc = "ASC",
-  Desc = "DESC",
-}
+export const SortType = {
+  Asc: "ASC",
+  Desc: "DESC",
+} as const;
+export type SortType = (typeof SortType)[keyof typeof SortType];
 
 export type CommonFindDocumentDto = {
   and?: CommonFindDocumentDto[] | null;
@@ -28,6 +32,27 @@ export type CommonFindDocumentDto = {
   or?: CommonFindDocumentDto[] | null;
   value?: string | null;
 };
+
+/**
+ * Bridge URL sort param ("column:asc" / "column:desc") to TanStack Table's
+ * SortingState and back, for DataGrid manual sorting.
+ */
+export type SortingState = Array<{ id: string; desc: boolean }>;
+
+export function sortParamToSortingState(sort?: string): SortingState {
+  if (!sort) return [];
+  const [id, direction] = sort.split(":");
+  if (!id || !direction) return [];
+  return [{ id, desc: direction.toLowerCase() === "desc" }];
+}
+
+export function sortingStateToSortParam(
+  sorting: SortingState,
+): string | undefined {
+  const first = sorting[0];
+  if (!first) return undefined;
+  return `${first.id}:${first.desc ? "desc" : "asc"}`;
+}
 
 /**
  * Helper to parse sort from URL (format: "column:asc" or "column:desc")
