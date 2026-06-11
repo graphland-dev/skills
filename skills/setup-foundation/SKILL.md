@@ -25,12 +25,14 @@ Then install the ReUI DataGrid (the standard GraphLand data table) from the ReUI
 npx shadcn@latest add @reui/data-grid @reui/data-grid-table @reui/data-grid-pagination @reui/data-grid-scroll-area @reui/data-grid-column-header @reui/data-grid-column-visibility
 ```
 
+The CLI may prompt to overwrite existing shadcn components (e.g. `popover`, `select`) the grid depends on — accept (`--overwrite`) so the grid's expected versions are installed. Two post-install notes: (1) ReUI's grid source uses runtime imports for some types, which trips `verbatimModuleSyntax: true` (Vite's default) with `TS1484` errors confined to `src/components/reui/data-grid/*` — either set `"verbatimModuleSyntax": false` in tsconfig or run a one-pass codemod to make those `import type`; the GraphLand templates themselves are clean. (2) The grid pulls `@reui/badge` and a `spinner` component into `src/components/`.
+
 ## 2. Copy foundation files from `${CLAUDE_PLUGIN_ROOT}/skills/ui-patterns/templates/`
 
 | From templates/ | To project |
 | --- | --- |
 | `form/*` | `src/components/form/` |
-| `table/*` (`data-grid-toolbar.tsx`, `table-utils.ts`, `filter-sheet.tsx`, `filter-combobox.tsx`) | `src/components/table/` |
+| `table/*` (`data-table.tsx`, `table-utils.ts`, `filter-sheet.tsx`, `filter-combobox.tsx`) | `src/components/table/` |
 | `ui/combobox.tsx`, `ui/date-picker-popover.tsx`, `ui/page-header.tsx`, `ui/form.tsx` | `src/components/ui/` |
 
 Note: `ui/form.tsx` (the React Hook Form `<Form*>` primitives) must be copied — the current shadcn registry no longer ships a `form` item.

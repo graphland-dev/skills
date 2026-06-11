@@ -1,21 +1,12 @@
-// Canonical list page wired for TanStack Router + ReUI DataGrid. The pattern is
-// router-agnostic: pagination/sort/search/filter state lives in URL search params,
-// and the router hooks below are the only thing to swap for Next.js or React
-// Router (see references/adaptation.md in the graphland-ui skill).
-import {
-  DataGrid,
-  DataGridContainer,
-} from "@/components/reui/data-grid/data-grid";
-import { DataGridColumnHeader } from "@/components/reui/data-grid/data-grid-column-header";
-import { DataGridPagination } from "@/components/reui/data-grid/data-grid-pagination";
-import { DataGridScrollArea } from "@/components/reui/data-grid/data-grid-scroll-area";
-import { DataGridTable } from "@/components/reui/data-grid/data-grid-table";
-import { DataGridToolbar } from "@/components/table/data-grid-toolbar";
+// Canonical list page wired for TanStack Router. The pattern is router-agnostic:
+// pagination/sort/search/filter state lives in URL search params, and the router
+// hooks below are the only thing to swap for Next.js or React Router (see
+// references/adaptation.md). The table is GraphLand's <DataTable> — pages never
+// import ReUI or @tanstack/react-table directly.
+import { DataTable, type ColumnDef } from "@/components/table/data-table";
 import {
   MatchOperator,
   buildPaginationParams,
-  sortParamToSortingState,
-  sortingStateToSortParam,
 } from "@/components/table/table-utils";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -23,14 +14,6 @@ import { useConfirmation } from "@/hooks/use-confirm";
 import { gqlClient } from "@/lib/gql-client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
-import {
-  getCoreRowModel,
-  useReactTable,
-  type ColumnDef,
-  type PaginationState,
-  type SortingState,
-  type Updater,
-} from "@tanstack/react-table";
 import { Edit, Filter, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { z } from "zod";
@@ -149,98 +132,22 @@ function EntitiesPage() {
     });
   };
 
-  // Column `id` doubles as the backend sort key — use an explicit id when the
-  // accessor doesn't match the server field (e.g. accessorFn for nested values).
+  // GraphLand column defs — `sortKey`/accessor map to the backend sort field.
   const columns = useMemo<ColumnDef<Entity>[]>(
     () => [
       {
-        accessorKey: "name",
-        id: "name",
-        header: ({ column }) => (
-          <DataGridColumnHeader column={column} title="Name" />
-        ),
+        accessor: "name",
+        title: "Name",
+        sortable: true,
         cell: ({ row }) => (
-          <span className="font-medium">{row.original.name}</span>
-        ),
-        enableSorting: true,
-        size: 200,
-      },
-      {
-        id: "actions",
-        header: "",
-        enableSorting: false,
-        enableHiding: false,
-        size: 160,
-        cell: ({ row }) => (
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditingEntity(row.original);
-                setIsSheetOpen(true);
-              }}
-            >
-              <Edit className="mr-1 h-3 w-3" /> Edit
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(row.original);
-              }}
-            >
-              <Trash2 className="mr-1 h-3 w-3" /> Delete
-            </Button>
-          </div>
+          <span className="font-medium">{row.name}</span>
         ),
       },
     ],
     [],
   );
 
-  // Derive TanStack state from URL params; change handlers write back to the URL.
-  const sorting = useMemo(() => sortParamToSortingState(sp.sort), [sp.sort]);
-  const pagination = useMemo<PaginationState>(
-    () => ({
-      pageIndex: (sp.page ?? 1) - 1,
-      pageSize: sp.pageSize ?? 10,
-    }),
-    [sp.page, sp.pageSize],
-  );
-
-  const handleSortingChange = (updater: Updater<SortingState>) => {
-    const next = typeof updater === "function" ? updater(sorting) : updater;
-    navigate({
-      search: { ...sp, sort: sortingStateToSortParam(next), page: 1 },
-      replace: true,
-    });
-  };
-
-  const handlePaginationChange = (updater: Updater<PaginationState>) => {
-    const next = typeof updater === "function" ? updater(pagination) : updater;
-    navigate({
-      search: { ...sp, page: next.pageIndex + 1, pageSize: next.pageSize },
-      replace: true,
-    });
-  };
-
   const meta = entitiesQuery.data?.namespace__entities?.meta;
-
-  const table = useReactTable({
-    columns,
-    data: entitiesQuery.data?.namespace__entities?.nodes ?? [],
-    getCoreRowModel: getCoreRowModel(),
-    getRowId: (row) => row._id,
-    manualSorting: true,
-    manualPagination: true,
-    pageCount: meta?.totalPages ?? 0,
-    state: { sorting, pagination },
-    onSortingChange: handleSortingChange,
-    onPaginationChange: handlePaginationChange,
-  });
 
   const activeFilterCount = useMemo(
     () => (sp.filterEntity ? 1 : 0),
@@ -300,52 +207,76 @@ function EntitiesPage() {
         }
       />
 
-      <DataGrid
-        table={table}
-        recordCount={meta?.totalCount ?? 0}
-        isLoading={entitiesQuery.isLoading || deleteMutation.isPending}
-        loadingMode="skeleton"
+      <DataTable
+        columns={columns}
+        data={entitiesQuery.data?.namespace__entities?.nodes ?? []}
+        getRowId={(row) => row._id}
+        loading={entitiesQuery.isLoading || deleteMutation.isPending}
+        totalCount={meta?.totalCount ?? 0}
+        totalPages={meta?.totalPages ?? 0}
+        page={sp.page ?? 1}
+        pageSize={sp.pageSize ?? 10}
+        onPaginationChange={(page, pageSize) =>
+          navigate({ search: { ...sp, page, pageSize }, replace: true })
+        }
+        sort={sp.sort}
+        onSortChange={(sort) =>
+          navigate({ search: { ...sp, sort, page: 1 }, replace: true })
+        }
+        searchValue={sp.search}
+        onSearchChange={(term) =>
+          navigate({
+            search: { ...sp, search: term || undefined, page: 1 },
+            replace: true,
+          })
+        }
+        searchPlaceholder="Search entities..."
+        onRefresh={() =>
+          queryClient.invalidateQueries({ queryKey: ["entities"] })
+        }
         emptyMessage="No entities found. Try adjusting your search."
-        tableLayout={{ columnsVisibility: true }}
-      >
-        <div className="w-full space-y-2.5">
-          <DataGridToolbar
-            searchValue={sp.search}
-            onSearchChange={(searchTerm) =>
-              navigate({
-                search: { ...sp, search: searchTerm || undefined, page: 1 },
-                replace: true,
-              })
-            }
-            searchPlaceholder="Search entities..."
-            onRefresh={() =>
-              queryClient.invalidateQueries({ queryKey: ["entities"] })
-            }
-            filterButton={
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsFilterSheetOpen(true)}
-                className="relative"
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                Filter
-                {activeFilterCount > 0 && (
-                  <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </Button>
-            }
-          />
-          <DataGridContainer>
-            <DataGridScrollArea>
-              <DataGridTable />
-            </DataGridScrollArea>
-          </DataGridContainer>
-          <DataGridPagination />
-        </div>
-      </DataGrid>
+        filterButton={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsFilterSheetOpen(true)}
+            className="relative"
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Filter
+            {activeFilterCount > 0 && (
+              <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                {activeFilterCount}
+              </span>
+            )}
+          </Button>
+        }
+        actions={(row) => (
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditingEntity(row);
+                setIsSheetOpen(true);
+              }}
+            >
+              <Edit className="mr-1 h-3 w-3" /> Edit
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(row);
+              }}
+            >
+              <Trash2 className="mr-1 h-3 w-3" /> Delete
+            </Button>
+          </div>
+        )}
+      />
     </div>
   );
 }

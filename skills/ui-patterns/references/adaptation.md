@@ -5,7 +5,7 @@ The canonical stack is **React + Vite + TanStack Router + TanStack Query + shadc
 ## What is stack-agnostic (no changes ever)
 
 - All of `templates/form/`, `templates/ui/`, `templates/hooks/`, `templates/table/filter-sheet.tsx`, `templates/table/filter-combobox.tsx`
-- `templates/table/data-grid-toolbar.tsx` and the registry-installed ReUI DataGrid — no router/data dependency
+- `templates/table/data-table.tsx` (the GraphLand `DataTable` wrapper) and the registry-installed ReUI DataGrid it wraps — controlled, no router/data dependency
 - The Zod schema + `z.infer` convention, the `entity?: T | null` sheet convention, query-key conventions
 
 ## Router swaps (affects only page files like `example-module/index.tsx`)

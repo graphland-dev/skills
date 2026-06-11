@@ -12,7 +12,7 @@ Scaffold a full CRUD list module following the GraphLand UI guideline.
 
 ## 0. Preconditions
 
-- Verify the foundation exists (`src/components/reui/data-grid/`, `src/components/table/data-grid-toolbar.tsx`, `src/components/form/`, `src/hooks/use-confirm.tsx`). If missing, stop and point the user to `/graphland-ui:setup-foundation`.
+- Verify the foundation exists (`src/components/table/data-table.tsx`, `src/components/reui/data-grid/`, `src/components/form/`, `src/hooks/use-confirm.tsx`). If missing, stop and point the user to `/graphland-ui:setup-foundation`.
 - Detect the router and data layer. The canonical example targets TanStack Router + GraphQL; for Next.js/React Router or REST, apply the swaps in `${CLAUDE_PLUGIN_ROOT}/skills/ui-patterns/references/adaptation.md` while keeping the structure identical.
 - Derive the plural from EntityName (`Service` → `services`). For GraphQL, ask the user for the API namespace if not obvious (operations are `namespace__entities`, etc.).
 
@@ -23,14 +23,14 @@ Copy the canonical example from `${CLAUDE_PLUGIN_ROOT}/skills/ui-patterns/templa
 | Template | Target (canonical stack) |
 | --- | --- |
 | `~util.ts` | `src/routes/<route-path>/~util.ts` — queries, mutations, Zod schema, entity types |
-| `index.tsx` | `src/routes/<route-path>/index.tsx` — list page wiring URL params ↔ ReUI DataGrid (manual-mode `useReactTable`) ↔ queries |
+| `index.tsx` | `src/routes/<route-path>/index.tsx` — list page wiring URL params ↔ `<DataTable>` ↔ queries |
 | `~components/entity-form-sheet.tsx` | `src/routes/<route-path>/~components/<entity>-form-sheet.tsx` |
 | `~components/entity-filter-sheet.tsx` | `src/routes/<route-path>/~components/<entity>-filter-sheet.tsx` |
 
 Update the route paths inside `index.tsx` (`createFileRoute("/<route-path>/")`, `useSearch`/`useNavigate` `from` values) to the real route. Extend with the entity's real fields:
 
 - `~util.ts`: real GQL fields in the queries, real Zod schema entries, real `Entity` type fields (or generated types if the project has codegen).
-- `index.tsx`: real TanStack `ColumnDef` entries — `accessorKey` (or `accessorFn` + explicit `id` set to the backend sort key), `DataGridColumnHeader` headers for sortable columns, `enableSorting` per field — plus the `searchableColumns` list and extra filter params in `validateSearch` and `paginationParams`.
+- `index.tsx`: real GraphLand `ColumnDef` entries (`{ accessor, title, sortable, sortKey?, cell?, align? }` — set `sortKey` for function accessors or when the display field differs from the backend sort field) plus the `searchableColumns` list and extra filter params in `validateSearch` and `paginationParams`. Row actions go through the `actions` render prop, not a column.
 - Form sheet: a `FormField*` component per schema field (catalog in `references/forms.md`); matching `defaultValues` and `form.reset` payloads.
 - Filter sheet: real `FilterField` entries.
 

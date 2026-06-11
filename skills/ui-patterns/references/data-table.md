@@ -1,103 +1,90 @@
-# Data Table — ReUI DataGrid + URL-synced state
+# Data Table — `DataTable` (ReUI DataGrid wrapper) + URL-synced state
 
 ## Why this pattern
 
-Every list page uses [ReUI's DataGrid](https://reui.io/docs/data-grid) (shadcn-registry component built on TanStack Table) composed natively: the page builds the `useReactTable` instance and passes it to `<DataGrid>`. All list state — page, page size, sort, search, filters — lives in **URL search params**, making lists shareable, bookmarkable, and reload-safe. The grid runs in TanStack's manual modes; the URL drives the server query.
+Every list page uses GraphLand's **`DataTable`** (`templates/table/data-table.tsx`) — a thin wrapper over [ReUI's DataGrid](https://reui.io/docs/data-grid) exposing our own prop API. Call sites import only `DataTable` + `ColumnDef` from `@/components/table/data-table`; they never touch ReUI or `@tanstack/react-table`. The wrapper is **controlled**: server-side page/sort/search are props with `on*Change` callbacks, and all list state lives in **URL search params** (shareable, bookmarkable, reload-safe). The page maps params ↔ URL; the wrapper owns the ReUI/TanStack composition.
 
 ```
-URL search params ──▶ state: { sorting, pagination } + buildPaginationParams() ──▶ server query
-        ▲                                                                              │
-        └── onSortingChange / onPaginationChange / toolbar callbacks ◀── DataGrid ◀────┘ data
+URL search params ──▶ DataTable props (page/sort/search) + buildPaginationParams() ──▶ server query
+        ▲                                                                                  │
+        └──────────── onPaginationChange / onSortChange / onSearchChange ◀── DataTable ◀───┘ data
 ```
 
 ## Install
+
+ReUI DataGrid is a peer the wrapper imports — `setup-foundation` installs it from the registry:
 
 ```
 npx shadcn@latest add @reui/data-grid @reui/data-grid-table @reui/data-grid-pagination \
   @reui/data-grid-scroll-area @reui/data-grid-column-header @reui/data-grid-column-visibility
 ```
 
-Files land in `src/components/reui/data-grid/` and stay updatable from the registry — never fork them. The plugin adds two pieces ReUI doesn't ship: `templates/table/data-grid-toolbar.tsx` (debounced search, refresh, filter slot, columns toggle) and `templates/table/table-utils.ts` (URL ↔ backend/TanStack bridges).
+Files land in `src/components/reui/data-grid/` (updatable from the registry — never fork). The plugin's `table-utils.ts` provides the URL↔backend/TanStack bridges the wrapper uses internally.
 
-## Composition (full wiring: `templates/example-module/index.tsx`)
+## Prop API
 
 ```tsx
-// 1. Derive TanStack state from URL params
-const sorting = useMemo(() => sortParamToSortingState(sp.sort), [sp.sort]);
-const pagination = useMemo<PaginationState>(
-  () => ({ pageIndex: (sp.page ?? 1) - 1, pageSize: sp.pageSize ?? 10 }),
-  [sp.page, sp.pageSize],
-);
-
-// 2. Manual-mode table; change handlers write back to the URL
-const table = useReactTable({
-  columns,
-  data: nodes,
-  getCoreRowModel: getCoreRowModel(),
-  getRowId: (row) => row._id,
-  manualSorting: true,
-  manualPagination: true,
-  pageCount: meta?.totalPages ?? 0,
-  state: { sorting, pagination },
-  onSortingChange: (updater) => {
-    const next = typeof updater === "function" ? updater(sorting) : updater;
-    navigate({ search: { ...sp, sort: sortingStateToSortParam(next), page: 1 }, replace: true });
-  },
-  onPaginationChange: (updater) => {
-    const next = typeof updater === "function" ? updater(pagination) : updater;
-    navigate({ search: { ...sp, page: next.pageIndex + 1, pageSize: next.pageSize }, replace: true });
-  },
-});
-
-// 3. Compose
-<DataGrid table={table} recordCount={meta?.totalCount ?? 0}
-  isLoading={query.isLoading} loadingMode="skeleton"
-  emptyMessage="No entities found." tableLayout={{ columnsVisibility: true }}>
-  <div className="w-full space-y-2.5">
-    <DataGridToolbar searchValue={sp.search} onSearchChange={...} onRefresh={...} filterButton={...} />
-    <DataGridContainer>
-      <DataGridScrollArea>
-        <DataGridTable />
-      </DataGridScrollArea>
-    </DataGridContainer>
-    <DataGridPagination />
-  </div>
-</DataGrid>
+<DataTable
+  columns={columns}            // GraphLand ColumnDef<T>[]
+  data={nodes}
+  getRowId={(row) => row._id}
+  // server-side state (controlled, from URL)
+  totalCount={meta.totalCount}
+  totalPages={meta.totalPages}
+  page={sp.page ?? 1}          // 1-indexed
+  pageSize={sp.pageSize ?? 10}
+  onPaginationChange={(page, pageSize) => navigate({ search: { ...sp, page, pageSize }, replace: true })}
+  sort={sp.sort}               // "key:asc" | "key:desc"
+  onSortChange={(sort) => navigate({ search: { ...sp, sort, page: 1 }, replace: true })}
+  searchValue={sp.search}
+  onSearchChange={(term) => navigate({ search: { ...sp, search: term || undefined, page: 1 }, replace: true })}
+  onRefresh={() => queryClient.invalidateQueries({ queryKey: ["entities"] })}
+  filterButton={<Button onClick={() => setFilterOpen(true)}>Filter</Button>}
+  loading={query.isLoading}
+  emptyMessage="No entities found."
+  actions={(row) => <>{/* Edit / Delete buttons */}</>}
+/>
 ```
 
-## Column conventions (native TanStack `ColumnDef<T>`)
+Other props: `onRowClick`, `columnsVisibility` (default true), `toolbar` (extra left-side content), `tableLayout` (escape hatch → ReUI flags: `columnsResizable`, `columnsPinnable`, `columnsMovable`, `headerSticky`, `dense`, `stripped`, …). Omitting `onSearchChange` hides the search box; omitting `onRefresh` hides the refresh button.
 
-- **`id` doubles as the backend sort key.** With `accessorKey: "name"` the id is implicit; with `accessorFn` (nested/computed values) set `id` explicitly to the server field (e.g. `accessorFn: (r) => r.client?.name, id: "client"`).
-- Sortable columns: `enableSorting: true` + `header: ({ column }) => <DataGridColumnHeader column={column} title="Name" />` (renders sort indicators + pin/visibility dropdown).
-- Actions column: `{ id: "actions", enableSorting: false, enableHiding: false, cell: ({ row }) => <…Edit/Delete buttons…> }`, with `e.stopPropagation()` in handlers if `onRowClick` is set.
-- `getRowId: (row) => row._id` keeps selection/pinning stable across refetches.
-- Searchable columns are not a column flag anymore: keep a plain `searchableColumns: string[]` fed to `buildPaginationParams` (search is a server-side OR filter).
+## Column conventions (`ColumnDef<T>`)
 
-## Toolbar and URL conventions
+```ts
+interface ColumnDef<T> {
+  accessor: string | ((row: T) => unknown); // "name", "user.name", or a getter
+  title: string;
+  sortable?: boolean;
+  sortKey?: string;   // backend sort key; required for sortable fn-accessor columns
+  cell?: ({ row, value }) => ReactNode;
+  align?: "left" | "right" | "center";
+  width?: number;
+  hideable?: boolean; // default true
+}
+```
 
-`DataGridToolbar` must render **inside** `<DataGrid>` (it uses the grid context for the columns-visibility dropdown). It debounces search 500ms with a typing guard so URL syncing doesn't fight the input. The `filterButton` slot pairs with a FilterSheet ([sheets.md](sheets.md)).
+- **Sorting maps to the backend field**: a string `accessor` (e.g. `"name"`) is the sort key by default; for a function accessor or a display name that differs from the server field, set `sortKey` (e.g. `accessor: (r) => r.client?.name, sortKey: "client"`).
+- Actions go through the `actions` render prop, not a column — the wrapper appends a non-sortable, non-hideable trailing column. Use `e.stopPropagation()` in handlers if `onRowClick` is set.
+- Searchable columns are not a column flag: pass a plain `searchableColumns: string[]` to `buildPaginationParams` (search is a server-side OR filter).
+- Row types must be **type aliases**, not interfaces (the underlying grid constrains rows to `object`).
+
+## URL conventions
 
 | Param | Format | Example |
 | --- | --- | --- |
-| `page`, `pageSize` | numbers (1-indexed in URL; TanStack `pageIndex` is 0-based) | `?page=2&pageSize=25` |
-| `sort` | `column:asc` / `column:desc` | `?sort=name:asc` |
+| `page`, `pageSize` | numbers (1-indexed) | `?page=2&pageSize=25` |
+| `sort` | `key:asc` / `key:desc` | `?sort=name:asc` |
 | `search` | plain string | `?search=acme` |
 | filters | one param per filter | `?filterCategory=<id>` |
 
-Every state change resets `page` to 1 except pagination itself.
+Every state change resets `page` to 1 except pagination itself. Search is debounced 500ms inside the wrapper (with a typing guard so URL syncing doesn't fight the input).
 
-## table-utils.ts
+## Under the hood
 
-`templates/table/table-utils.ts` provides both bridges:
-- `buildPaginationParams(sp, searchableColumns)` → backend `CommonPaginationDto` (`{ page, limit, sortBy?, sort?, filters? }`); ships standalone `MatchOperator`/`SortType`/`CommonFindDocumentDto` (re-point at generated types if the project has codegen).
-- `sortParamToSortingState` / `sortingStateToSortParam` → TanStack `SortingState` ↔ URL `sort` param.
-
-## Extra DataGrid capabilities (enable per table as needed)
-
-`tableLayout` flags: `columnsResizable`, `columnsPinnable`, `columnsMovable`, `headerSticky`, `dense`, `stripped`, row pinning/drag. `DataGridTableVirtual` replaces `DataGridTable` for huge client-side datasets. Default GraphLand setup enables only `columnsVisibility`.
+The wrapper builds `useReactTable` in manual mode (`manualSorting`/`manualPagination`, `pageCount: totalPages`), maps GraphLand columns to native TanStack columns (`accessorFn`, `id = sortKey ?? accessor`, ReUI `DataGridColumnHeader` for sortable headers, `meta.headerTitle` for the visibility menu), and assembles `DataGrid > DataGridContainer > DataGridScrollArea > DataGridTable` + an internal toolbar + `DataGridPagination`. You only edit `data-table.tsx` if you need to expose more ReUI capability; pages stay on the GraphLand API. `table-utils.ts` still exports `buildPaginationParams` (URL → backend `CommonPaginationDto`) plus the `sortParamToSortingState`/`sortingStateToSortParam` bridges the wrapper consumes.
 
 ## Adaptation
 
-- **Router**: only the URL read/write changes — same swaps as everywhere ([adaptation.md](adaptation.md)): Next.js `useSearchParams` + `router.replace`, React Router `setSearchParams`. The derive-state/manual-mode wiring is identical.
-- **REST backend**: keep the TanStack state derivation; map URL params to your API's query-string shape instead of `buildPaginationParams`.
-- **Client-side data**: drop the manual flags and add `getSortedRowModel()`/`getPaginationRowModel()`; state can stay local instead of URL for throwaway tables.
+- **Router**: only the URL read/write in the `on*Change` callbacks changes ([adaptation.md](adaptation.md)) — Next.js `useSearchParams` + `router.replace`, React Router `setSearchParams`. The wrapper itself is router-agnostic.
+- **REST backend**: keep `DataTable` as-is; map URL params to your API's query string instead of `buildPaginationParams`.
+- **Client-side data**: for throwaway tables, pass local `useState` for page/sort/search instead of URL params, or compose ReUI directly with client row models — the wrapper targets the server-paginated case.

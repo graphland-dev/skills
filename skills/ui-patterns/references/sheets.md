@@ -65,7 +65,7 @@ Wrap a per-entity `EntityFilterSheet` around it that builds the fields (see `tem
 
 ## View sheet (read-only detail)
 
-For entities needing a detail panel rather than a route: a `Sheet` with a tab strip (`useState<TabType>`), typically **Basic info** (label/value grid), **related-record tabs** (a ReUI DataGrid per tab with its own local pagination state), and **Documents** (uploads). An Edit button inside the view sheet opens the same form sheet. Scaffold with `/graphland-ui:new-view-sheet`.
+For entities needing a detail panel rather than a route: a `Sheet` with a tab strip (`useState<TabType>`), typically **Basic info** (label/value grid), **related-record tabs** (a `<DataTable>` per tab with its own local page/pageSize state), and **Documents** (uploads). An Edit button inside the view sheet opens the same form sheet. Scaffold with `/graphland-ui:new-view-sheet`.
 
 ## Conventions
 
