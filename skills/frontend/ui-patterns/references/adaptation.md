@@ -2,6 +2,8 @@
 
 The canonical stack is **React + Vite + TanStack Router + TanStack Query + shadcn/ui + Tailwind + GraphQL**. The templates compile as-is there. Everything else is a bounded set of swaps — the patterns (URL-driven list state, sheet-based CRUD, schema-first forms, co-located data operations) survive every swap.
 
+**GraphLand monorepo defaults** (`setup-workspace` skill): Vite consoles **always** use TanStack Router + TanStack Query; Next.js consoles use App Router + TanStack Query. Do not substitute React Router or ad-hoc `fetch` in components.
+
 ## What is stack-agnostic (no changes ever)
 
 - All of `templates/form/`, `templates/ui/`, `templates/hooks/`, `templates/table/filter-sheet.tsx`, `templates/table/filter-combobox.tsx`
