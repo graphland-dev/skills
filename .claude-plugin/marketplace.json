@@ -1,0 +1,15 @@
+{
+  "name": "graphland",
+  "description": "GraphLand's official Claude Code plugins, including the company-wide UI guideline.",
+  "owner": {
+    "name": "GraphLand",
+    "url": "https://github.com/graphland-dev"
+  },
+  "plugins": [
+    {
+      "name": "graphland-ui",
+      "source": "./",
+      "description": "GraphLand's common UI guideline: patterns, component templates, and scaffold commands for forms, data tables, sheet-based CRUD, and the GraphQL data layer."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "graphland-ui",
+  "description": "GraphLand's common UI guideline: battle-tested patterns and component templates for forms (React Hook Form + Zod), data tables with URL-synced state, sheet-based CRUD, and a GraphQL data layer — plus scaffold commands for new modules.",
+  "version": "0.1.0",
+  "author": {
+    "name": "GraphLand",
+    "url": "https://github.com/graphland-dev"
+  }
+}
