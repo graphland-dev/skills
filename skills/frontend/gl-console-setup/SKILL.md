@@ -1,5 +1,5 @@
 ---
-name: gl-console-foundation
+name: gl-console-setup
 description: Bootstrap a project with the GraphLand UI foundation — install dependencies and shadcn components, copy the form/table/hooks/lib templates, and wire root providers. Use once per project before scaffolding modules.
 argument-hint: [graphql|rest]
 disable-model-invocation: true

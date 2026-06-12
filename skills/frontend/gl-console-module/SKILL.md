@@ -14,7 +14,7 @@ Scaffold a full CRUD list module following the GraphLand UI guideline.
 
 ## 0. Preconditions
 
-- Verify the foundation exists (`src/components/table/data-table.tsx`, `src/components/reui/data-grid/`, `src/components/form/`, `src/hooks/use-confirm.tsx`). If missing, stop and point the user to the `gl-console-foundation` skill.
+- Verify the foundation exists (`src/components/table/data-table.tsx`, `src/components/reui/data-grid/`, `src/components/form/`, `src/hooks/use-confirm.tsx`). If missing, stop and point the user to the `gl-console-setup` skill.
 - Detect the router and data layer. The canonical example targets TanStack Router + GraphQL; for Next.js/React Router or REST, apply the swaps in `gl-console-patterns/references/adaptation.md` while keeping the structure identical.
 - Derive the plural from EntityName (`Service` → `services`). For GraphQL, ask the user for the API namespace if not obvious (operations are `namespace__entities`, etc.).
 

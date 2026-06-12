@@ -14,7 +14,7 @@ Scaffold a view sheet — a read-only right-side panel opened from a list row, w
 
 ## 0. Preconditions and questions
 
-- Verify the foundation exists (`src/components/table/data-table.tsx` + ReUI data-grid in `src/components/reui/data-grid/`, sheet components); if not, point to the `gl-console-foundation` skill.
+- Verify the foundation exists (`src/components/table/data-table.tsx` + ReUI data-grid in `src/components/reui/data-grid/`, sheet components); if not, point to the `gl-console-setup` skill.
 - Ask the user:
   1. Which **related record tabs** (e.g. invoices, payments)? If none, generate Basic Info only.
   2. The **GraphQL namespace** for related queries (or REST endpoints).

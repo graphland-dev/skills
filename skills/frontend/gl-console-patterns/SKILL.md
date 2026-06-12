@@ -7,7 +7,7 @@ description: GraphLand's common UI guideline — canonical patterns and ready-to
 
 The company-wide UI guideline with bundled templates in [templates/](templates/). Canonical stack: React + Vite + TanStack Router/Query + shadcn/ui + Tailwind. Every pattern has an **Adaptation** section in its reference doc for Next.js, React Router, or REST backends — read [references/adaptation.md](references/adaptation.md) before applying the patterns outside the canonical stack.
 
-**Foundation not installed yet?** Run the `gl-console-foundation` skill (or follow it manually) before scaffolding pages. Templates live in [templates/](templates/) — copy them verbatim rather than re-deriving them.
+**Foundation not installed yet?** Run the `gl-console-setup` skill (or follow it manually) before scaffolding pages. Templates live in [templates/](templates/) — copy them verbatim rather than re-deriving them.
 
 ## Pattern map
 

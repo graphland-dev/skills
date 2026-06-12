@@ -12,7 +12,7 @@ URL search params ──▶ DataTable props (page/sort/search) + buildPagination
 
 ## Install
 
-ReUI DataGrid is a peer the wrapper imports — `gl-console-foundation` installs it from the registry:
+ReUI DataGrid is a peer the wrapper imports — `gl-console-setup` installs it from the registry:
 
 ```
 npx shadcn@latest add @reui/data-grid @reui/data-grid-table @reui/data-grid-pagination \

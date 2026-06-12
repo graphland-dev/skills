@@ -24,7 +24,7 @@ npx skills add graphland-dev/skills --list
 
 Skills install to `.agents/skills/`. Scaffold skills reference paths like `gl-console-patterns/templates/...` and `gl-workspace-setup/templates/...` — **install `--all`**, not isolated skills.
 
-> **Migrating from v1.x:** all skills were renamed with a `gl-` prefix in v2.0.0 (e.g. `new-module` → `gl-console-module`, `setup-workspace` → `gl-workspace-setup`, `ui-patterns` → `gl-console-patterns`). Remove the old skills and re-install `--all`.
+> **Migrating from v1.x:** all skills were renamed with a `gl-` prefix in v2.0.0 (e.g. `new-module` → `gl-console-module`, `setup-workspace` → `gl-workspace-setup`, `setup-foundation` → `gl-console-setup`, `ui-patterns` → `gl-console-patterns`). Remove the old skills and re-install `--all`.
 
 ## What's inside
 
@@ -33,7 +33,7 @@ Skills install to `.agents/skills/`. Scaffold skills reference paths like `gl-co
 | Skill | What it does |
 | --- | --- |
 | `gl-console-patterns` | Frontend guideline — forms, `DataTable`, sheets, data layer, hooks. Auto-loaded when relevant. |
-| `gl-console-foundation` | Bootstrap foundation into an **existing** app (not needed after `gl-workspace-setup`). |
+| `gl-console-setup` | Bootstrap foundation into an **existing** app (not needed after `gl-workspace-setup`). |
 | `gl-console-module` | Scaffold a CRUD list module. |
 | `gl-console-form-page` | Scaffold a full-page form. |
 | `gl-console-view-sheet` | Scaffold a read-only detail sheet. |
@@ -111,7 +111,7 @@ Feature resolvers use @Authenticated() from the bundled authorization decorators
 ```
 gl-workspace-setup for "acme-admin"
 
-Next.js, REST, Better Auth. Use gl-console-foundation + gl-console-patterns/references/adaptation.md.
+Next.js, REST, Better Auth. Use gl-console-setup + gl-console-patterns/references/adaptation.md.
 ```
 
 ### Add features later

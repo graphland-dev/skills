@@ -14,7 +14,7 @@ Scaffold a full-page form following the GraphLand UI guideline. Sheets (see the 
 
 ## 0. Preconditions and questions
 
-- Verify the foundation exists (`src/components/form/`); if not, point to the `gl-console-foundation` skill.
+- Verify the foundation exists (`src/components/form/`); if not, point to the `gl-console-setup` skill.
 - Ask the user:
   1. **Create-only**, or also **edit mode** (loaded from a URL param like `$entityId`)?
   2. The **GraphQL namespace** (or REST endpoints if the project is REST).

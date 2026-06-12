@@ -8,7 +8,7 @@
   },
   "skills": [
     "./skills/frontend/gl-console-patterns",
-    "./skills/frontend/gl-console-foundation",
+    "./skills/frontend/gl-console-setup",
     "./skills/frontend/gl-console-module",
     "./skills/frontend/gl-console-form-page",
     "./skills/frontend/gl-console-view-sheet",

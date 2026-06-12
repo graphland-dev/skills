@@ -92,7 +92,7 @@ Confirm back in one line, e.g. *"Scaffolding **acme** — Vite, REST, Better Aut
 | `vite` | `rest` | `api-client.ts` (cookie session **or** bearer JWT per auth choice) | REST controllers |
 | `vite` | `graphql` | `gql-client.ts` + `token-service.ts` when `custom-jwt` | GraphQL module at `/graphql` |
 | `vite` | `both` | both clients; `~util.ts` picks per feature | REST + GraphQL |
-| `nextjs` | any | `gl-console-foundation` + `adaptation.md` | same as above |
+| `nextjs` | any | `gl-console-setup` + `adaptation.md` | same as above |
 
 Substitute `<project>` / `<ProjectName>` / `@<project>/` placeholders throughout copied templates.
 
@@ -413,10 +413,10 @@ No Vite template — scaffold App Router, then apply GraphLand foundation.
 
 1. `bunx create-next-app@latest console` in `apps/` (TypeScript, App Router, Tailwind, `@/*` alias, no src dir unless the team prefers it).
 2. Install: `@tanstack/react-query`, `@tanstack/react-table`, plus shadcn deps. Add `better-auth` **only** when auth = `better-auth`.
-3. Run the `gl-console-foundation` skill with `rest`, `graphql`, or `both` (run foundation with the primary layer, then add the second client manually):
-   - `rest` → `gl-console-foundation rest`
-   - `graphql` → `gl-console-foundation graphql`
-   - `both` → `gl-console-foundation graphql` then also copy `api-client.ts` pattern from `./templates/console/src/lib/api-client.ts`
+3. Run the `gl-console-setup` skill with `rest`, `graphql`, or `both` (run foundation with the primary layer, then add the second client manually):
+   - `rest` → `gl-console-setup rest`
+   - `graphql` → `gl-console-setup graphql`
+   - `both` → `gl-console-setup graphql` then also copy `api-client.ts` pattern from `./templates/console/src/lib/api-client.ts`
 4. Read and apply `gl-console-patterns/references/adaptation.md`:
    - `"use client"` on interactive pages
    - `_components/` + `_util.ts` instead of `~`
@@ -452,4 +452,4 @@ Record the full intake (framework, API data, auth, multi-tenant, workspace path)
 
 `gl-api-module` is **Better Auth only**. For `custom-jwt`, use decorators from `./templates/api-jwt/src/authorization/`.
 
-For Vite + `better-auth` consoles created by this skill, **do not** re-run `gl-console-foundation` — foundation is already in `./templates/console/`. Use `gl-console-foundation` for Next.js consoles or late additions to existing apps.
+For Vite + `better-auth` consoles created by this skill, **do not** re-run `gl-console-setup` — foundation is already in `./templates/console/`. Use `gl-console-setup` for Next.js consoles or late additions to existing apps.
