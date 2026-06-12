@@ -122,6 +122,90 @@ gl-console-module products/Product     # console list module
 gl-console-graphql-util Product inventory
 ```
 
+## Skill-by-skill examples
+
+Realistic prompts for each skill, following one project — **"fleetly"**, a multi-tenant vehicle-rental SaaS.
+
+**`gl-workspace-setup`** — day 0, bootstrap the monorepo:
+
+```
+Use gl-workspace-setup to bootstrap "fleetly" — a vehicle rental SaaS.
+
+Console: Vite · API data: REST · Auth: Better Auth · Multi-tenant: yes
+Workspace route: garage · API infra: mail, queues
+
+Verify both apps build, then commit the initial scaffold.
+```
+
+**`gl-api-module`** — add the first backend resource:
+
+```
+/gl-api-module Vehicle
+
+Fields: name (required), plateNumber (unique), dailyRate (number),
+status (enum: available | rented | maintenance).
+List endpoint: filter by status, text search on name/plateNumber.
+```
+
+**`gl-console-module`** — the matching console list page:
+
+```
+/gl-console-module vehicles/Vehicle
+
+Columns: name, plateNumber, dailyRate, status (badge).
+Filter sheet: status select + dailyRate range.
+Wire it to the Vehicle REST endpoints from apps/api.
+```
+
+**`gl-console-view-sheet`** — detail panel off the list:
+
+```
+/gl-console-view-sheet vehicles/Vehicle
+
+Tabs: Basic Info, Rental History (paginated table), Documents.
+Open from the row actions of the vehicle list.
+```
+
+**`gl-console-form-page`** — a complex entity that outgrows a sheet:
+
+```
+/gl-console-form-page rentals/Rental
+
+Sections: customer info, vehicle picker (async combobox, only
+status=available), pricing with line items, notes.
+Edit mode loads the rental by id from the route param.
+```
+
+**`gl-console-graphql-util`** — data operations without scaffolding UI:
+
+```
+/gl-console-graphql-util Rental garage
+
+Operations: paginated list (filter by status + vehicleId), create,
+update, and a cancelRental mutation. Zod schema must match the API DTO.
+```
+
+**`gl-console-setup`** — adopt the foundation in an app that already exists:
+
+```
+We have an existing Vite + TanStack Router app in apps/console.
+Run gl-console-setup rest, wire the root providers, and typecheck.
+```
+
+**`gl-console-patterns`** — auto-loaded guideline; just describe the UI problem:
+
+```
+The vehicle table refetches on every keystroke. Fix the search to use
+the URL-synced pattern from gl-console-patterns.
+```
+
+**`gl-api-patterns`** — auto-loaded guideline; use it for reviews too:
+
+```
+Review apps/api/src/vehicle against gl-api-patterns — DTO validation,
+pagination contract, and org scoping on every query.
+```
+
 ## Intake cheat sheet
 
 | Question | Options | Default |
