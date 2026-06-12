@@ -22,7 +22,9 @@ npx skills add graphland-dev/skills --list
 /plugin install graphland@graphland
 ```
 
-Skills install to `.agents/skills/`. Scaffold skills reference paths like `ui-patterns/templates/...` and `setup-workspace/templates/...` — **install `--all`**, not isolated skills.
+Skills install to `.agents/skills/`. Scaffold skills reference paths like `gl-console-patterns/templates/...` and `gl-workspace-setup/templates/...` — **install `--all`**, not isolated skills.
+
+> **Migrating from v1.x:** all skills were renamed with a `gl-` prefix in v2.0.0 (e.g. `new-module` → `gl-console-module`, `setup-workspace` → `gl-workspace-setup`, `ui-patterns` → `gl-console-patterns`). Remove the old skills and re-install `--all`.
 
 ## What's inside
 
@@ -30,27 +32,27 @@ Skills install to `.agents/skills/`. Scaffold skills reference paths like `ui-pa
 
 | Skill | What it does |
 | --- | --- |
-| `ui-patterns` | Frontend guideline — forms, `DataTable`, sheets, data layer, hooks. Auto-loaded when relevant. |
-| `setup-foundation` | Bootstrap foundation into an **existing** app (not needed after `setup-workspace`). |
-| `new-module` | Scaffold a CRUD list module. |
-| `new-form-page` | Scaffold a full-page form. |
-| `new-view-sheet` | Scaffold a read-only detail sheet. |
-| `new-graphql-util` | Generate `~util.ts` with GQL + Zod. |
+| `gl-console-patterns` | Frontend guideline — forms, `DataTable`, sheets, data layer, hooks. Auto-loaded when relevant. |
+| `gl-console-foundation` | Bootstrap foundation into an **existing** app (not needed after `gl-workspace-setup`). |
+| `gl-console-module` | Scaffold a CRUD list module. |
+| `gl-console-form-page` | Scaffold a full-page form. |
+| `gl-console-view-sheet` | Scaffold a read-only detail sheet. |
+| `gl-console-graphql-util` | Generate `~util.ts` with GQL + Zod. |
 
 ### `backend/` — NestJS API patterns
 
 | Skill | What it does |
 | --- | --- |
-| `api-patterns` | Backend guideline — modules, DTOs, pagination, Better Auth. Auto-loaded when relevant. |
-| `new-api-module` | Scaffold CRUD module (**Better Auth only**). |
+| `gl-api-patterns` | Backend guideline — modules, DTOs, pagination, Better Auth. Auto-loaded when relevant. |
+| `gl-api-module` | Scaffold CRUD module (**Better Auth only**). |
 
 ### `fullstack/` — monorepo
 
 | Skill | What it does |
 | --- | --- |
-| `setup-workspace` | Bootstrap monorepo from **bundled templates** in `skills/fullstack/setup-workspace/templates/`. |
+| `gl-workspace-setup` | Bootstrap monorepo from **bundled templates** in `skills/fullstack/gl-workspace-setup/templates/`. |
 
-## Bundled templates (`setup-workspace/templates/`)
+## Bundled templates (`gl-workspace-setup/templates/`)
 
 | Template | Auth | Use when |
 | --- | --- | --- |
@@ -58,16 +60,16 @@ Skills install to `.agents/skills/`. Scaffold skills reference paths like `ui-pa
 | `api-jwt/` + `console-jwt/` | Custom JWT | Passport, `@Authenticated()` RBAC, `x-tenant`, GraphQL login |
 | `package.json`, `mprocs.yaml`, `docker-compose.yml` | — | Monorepo root |
 
-See `skills/fullstack/setup-workspace/templates/README.md` for the full map.
+See `skills/fullstack/gl-workspace-setup/templates/README.md` for the full map.
 
-Also bundled in sibling skills: `ui-patterns/templates/` (forms, tables, gql-client), `api-patterns/templates/` (REST modules, common DTOs).
+Also bundled in sibling skills: `gl-console-patterns/templates/` (forms, tables, gql-client), `gl-api-patterns/templates/` (REST modules, common DTOs).
 
 ## Sample prompts
 
 ### New monorepo (choices inline)
 
 ```
-Use setup-workspace to bootstrap "acme".
+Use gl-workspace-setup to bootstrap "acme".
 
 Console: Vite
 API data: REST
@@ -82,22 +84,22 @@ Copy templates from the skill pack and verify both apps build.
 ### Let the agent ask
 
 ```
-/setup-workspace acme
+/gl-workspace-setup acme
 ```
 
 ### Better Auth (default templates)
 
 ```
-setup-workspace for "my-app"
+gl-workspace-setup for "my-app"
 
 Vite, REST, Better Auth. Copy templates/api and templates/console.
-Then add Project CRUD with new-api-module and new-module.
+Then add Project CRUD with gl-api-module and gl-console-module.
 ```
 
 ### Custom JWT (bundled api-jwt + console-jwt)
 
 ```
-setup-workspace for "my-saas"
+gl-workspace-setup for "my-saas"
 
 Vite, GraphQL, custom-jwt.
 Copy templates/api-jwt and templates/console-jwt.
@@ -107,17 +109,17 @@ Feature resolvers use @Authenticated() from the bundled authorization decorators
 ### Next.js console
 
 ```
-setup-workspace for "acme-admin"
+gl-workspace-setup for "acme-admin"
 
-Next.js, REST, Better Auth. Use setup-foundation + ui-patterns/references/adaptation.md.
+Next.js, REST, Better Auth. Use gl-console-foundation + gl-console-patterns/references/adaptation.md.
 ```
 
 ### Add features later
 
 ```
-new-api-module Invoice          # Better Auth REST only
-new-module products/Product     # console list module
-new-graphql-util Product inventory
+gl-api-module Invoice          # Better Auth REST only
+gl-console-module products/Product     # console list module
+gl-console-graphql-util Product inventory
 ```
 
 ## Intake cheat sheet
