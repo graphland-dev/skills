@@ -52,6 +52,13 @@ Skills install to `.agents/skills/`. Scaffold skills reference paths like `gl-co
 | --- | --- |
 | `gl-workspace-setup` | Bootstrap monorepo from **bundled templates** in `skills/fullstack/gl-workspace-setup/templates/`. |
 
+### `general/` — cross-cutting workflows
+
+| Skill | What it does |
+| --- | --- |
+| `gl-review` | Review a PR/branch/diff against the GraphLand guidelines (tenancy scoping, DTO validation, table/form patterns). |
+| `gl-release-notes` | Write release notes from git history and merged PRs; update `CHANGELOG.md` or draft a GitHub release. |
+
 ## Bundled templates (`gl-workspace-setup/templates/`)
 
 | Template | Auth | Use when |
@@ -204,6 +211,24 @@ the URL-synced pattern from gl-console-patterns.
 ```
 Review apps/api/src/vehicle against gl-api-patterns — DTO validation,
 pagination contract, and org scoping on every query.
+```
+
+**`gl-review`** — guideline review of a whole change before merging:
+
+```
+/gl-review 42
+
+The PR adds rental cancellation. Pay extra attention to tenant scoping
+on the new queries and the cancelRental mutation.
+```
+
+**`gl-release-notes`** — cut a release:
+
+```
+/gl-release-notes v1.4.0
+
+Customer-facing notes for everything since v1.3.0. Update CHANGELOG.md
+and draft the GitHub release.
 ```
 
 ## Intake cheat sheet
