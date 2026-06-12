@@ -19,6 +19,7 @@ Scaffold a full-page form following the GraphLand UI guideline. Sheets (see the 
   1. **Create-only**, or also **edit mode** (loaded from a URL param like `$entityId`)?
   2. The **GraphQL namespace** (or REST endpoints if the project is REST).
   3. A **line items** section (repeated rows via `useFieldArray`)?
+  4. The **parent list route** for Back/Cancel/onSuccess navigation (default: the parent of `<route-path>`, e.g. `invoices/create` → `/invoices`) — confirm it exists.
 
 ## 1. Generate
 
@@ -40,4 +41,4 @@ Use the project's router idioms — TanStack Router canonical; otherwise apply `
 ## 2. After generating
 
 1. Run the TypeScript check.
-2. Remind the user to replace placeholder fields with real backend fields and confirm the parent list route used by Back/Cancel/onSuccess navigation.
+2. Remind the user to replace placeholder fields with real backend fields.

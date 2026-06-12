@@ -12,11 +12,15 @@ Scaffold a full CRUD list module following the GraphLand UI guideline.
 **Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
 **Format:** `<route-path> <EntityName>` — e.g. `products/services Service` · `employees/departments Department`
 
-## 0. Preconditions
+## 0. Preconditions and questions
 
 - Verify the foundation exists (`src/components/table/data-table.tsx`, `src/components/reui/data-grid/`, `src/components/form/`, `src/hooks/use-confirm.tsx`). If missing, stop and point the user to the `gl-console-setup` skill.
 - Detect the router and data layer. The canonical example targets TanStack Router + GraphQL; for Next.js/React Router or REST, apply the swaps in `gl-console-patterns/references/adaptation.md` while keeping the structure identical.
-- Derive the plural from EntityName (`Service` → `services`). For GraphQL, ask the user for the API namespace if not obvious (operations are `namespace__entities`, etc.).
+- Derive the plural from EntityName (`Service` → `services`).
+- Ask the user:
+  1. The entity's **fields** (name/type/required) — but first check for a matching API module (e.g. `apps/api/src/api/<entity>/` in a GraphLand monorepo, or the GraphQL schema): if one exists, derive fields, enums, and validation from its DTOs/entity and just confirm the list with the user instead of asking from scratch.
+  2. The **GraphQL namespace** (operations are `namespace__entities`, etc.) **or the REST endpoints** when the data layer is REST — skip if already obvious from the API module.
+  3. Which columns are **searchable**, and which fields belong in the **filter sheet** (default: status-like enums and date ranges).
 
 ## 1. Generate the four files
 

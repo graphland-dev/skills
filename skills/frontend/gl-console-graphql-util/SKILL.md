@@ -12,12 +12,14 @@ Generate a `~util.ts` for an entity following the GraphLand data-layer conventio
 **Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
 **Format:** `<EntityName> <namespace>` — e.g. `Account accounting` · `Product inventory`
 
-Ask the user:
+## 0. Preconditions and questions
 
-1. Which **operations** are needed? (list / get-by-id / create / update / delete — default: all)
-2. Any **extra queries** (e.g. related entities for dropdowns)?
+- This skill targets the GraphQL data layer (`gql-client.ts`). For REST projects, write typed fetch functions in `~util.ts` instead, per `gl-console-patterns/references/data-layer.md` → Adaptation.
+- Ask the user:
+  1. Which **operations** are needed? (list / get-by-id / create / update / delete — default: all)
+  2. Any **extra queries** (e.g. related entities for dropdowns)?
 
-## Generate
+## 1. Generate
 
 Start from `gl-console-patterns/templates/example-module/~util.ts`, substituting `Entity`/`entity`/`entities` and `Namespace`/`namespace`. Conventions to preserve:
 
@@ -30,7 +32,7 @@ Start from `gl-console-patterns/templates/example-module/~util.ts`, substituting
 
 Place the file in the entity's route folder (`~util.ts`; `_util.ts` on Next.js).
 
-## After generating
+## 2. After generating
 
 1. Replace placeholder fields with real backend schema fields.
 2. Wire the exports into the route's page (queries via TanStack Query with `[resource, ...params]` keys, prefix invalidation after mutations).

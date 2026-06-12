@@ -1,13 +1,13 @@
 ---
 name: gl-console-setup
 description: Bootstrap a project with the GraphLand UI foundation — install dependencies and shadcn components, copy the form/table/hooks/lib templates, and wire root providers. Use once per project before scaffolding modules.
-argument-hint: [graphql|rest]
+argument-hint: [rest|graphql|both]
 disable-model-invocation: true
 ---
 
 > **Locating sibling skills:** paths like `gl-console-patterns/...` or `gl-api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
-Install the GraphLand UI foundation into the current project. Data-layer variant from arguments (default `graphql` if empty/unsubstituted): **$ARGUMENTS**
+Install the GraphLand UI foundation into the current project. Data-layer variant from arguments: **$ARGUMENTS** — `rest`, `graphql`, or `both`. If empty/unsubstituted, detect it (existing `gql-client.ts`/codegen → `graphql`; an API with both surfaces → `both`); when detection is inconclusive, ask — default **`rest`**, matching the `gl-workspace-setup` intake default.
 
 Before starting, read the guideline's adaptation notes at `gl-console-patterns/references/adaptation.md` and detect the project's stack (Vite vs Next.js, router, whether shadcn is initialized, package manager). If the project is not React + Tailwind, stop and tell the user this guideline targets React.
 
@@ -40,10 +40,10 @@ The CLI may prompt to overwrite existing shadcn components (e.g. `popover`, `sel
 Note: `ui/form.tsx` (the React Hook Form `<Form*>` primitives) must be copied — the current shadcn registry no longer ships a `form` item.
 | `hooks/*` | `src/hooks/` |
 | `lib/date-format.ts` | `src/lib/` |
-| `lib/gql-client.ts`, `lib/token-service.ts` | `src/lib/` — **graphql variant only** |
+| `lib/gql-client.ts`, `lib/token-service.ts` | `src/lib/` — **graphql and both variants** |
 | `lib/form-utils.ts` | `src/lib/` |
 
-For the `rest` variant, skip gql-client/token-service and tell the user to keep `~util.ts` co-location with typed fetch functions (see `references/data-layer.md` → Adaptation).
+For the `rest` variant, skip gql-client/token-service and tell the user to keep `~util.ts` co-location with typed fetch functions (see `references/data-layer.md` → Adaptation). For the `both` variant, copy the gql-client files **and** an `api-client.ts` (pattern: `gl-workspace-setup/templates/console/src/lib/api-client.ts`); each feature's `~util.ts` picks one client.
 
 Adjust if needed:
 - No `@/` path alias → add one to tsconfig/vite config (preferred) or rewrite imports.
@@ -65,7 +65,7 @@ Known gotchas (verified against a fresh Vite + latest-shadcn project):
 </QueryClientProvider>
 ```
 
-For the graphql variant, ensure the backend URL env var is set (`VITE_BACKEND_BASE_URL` or framework equivalent) and mention it must point at the GraphQL endpoint's base URL (client appends `/graphql`).
+For the graphql/both variants, ensure the backend URL env var is set (`VITE_BACKEND_BASE_URL` or framework equivalent) and mention it must point at the GraphQL endpoint's base URL (client appends `/graphql`).
 
 ## 4. Verify
 

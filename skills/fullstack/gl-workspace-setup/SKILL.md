@@ -413,10 +413,7 @@ No Vite template — scaffold App Router, then apply GraphLand foundation.
 
 1. `bunx create-next-app@latest console` in `apps/` (TypeScript, App Router, Tailwind, `@/*` alias, no src dir unless the team prefers it).
 2. Install: `@tanstack/react-query`, `@tanstack/react-table`, plus shadcn deps. Add `better-auth` **only** when auth = `better-auth`.
-3. Run the `gl-console-setup` skill with `rest`, `graphql`, or `both` (run foundation with the primary layer, then add the second client manually):
-   - `rest` → `gl-console-setup rest`
-   - `graphql` → `gl-console-setup graphql`
-   - `both` → `gl-console-setup graphql` then also copy `api-client.ts` pattern from `./templates/console/src/lib/api-client.ts`
+3. Run the `gl-console-setup` skill with the API data answer from intake — `gl-console-setup rest`, `gl-console-setup graphql`, or `gl-console-setup both` (the `both` variant copies the gql-client files and `api-client.ts`).
 4. Read and apply `gl-console-patterns/references/adaptation.md`:
    - `"use client"` on interactive pages
    - `_components/` + `_util.ts` instead of `~`

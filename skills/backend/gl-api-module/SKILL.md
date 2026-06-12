@@ -12,11 +12,14 @@ Scaffold a feature module following the GraphLand API guideline (`gl-api-pattern
 **Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
 **Format:** `<EntityName>` — e.g. `Project` · `Invoice` · `Webhook`
 
-## 0. Preconditions
+## 0. Preconditions and questions
 
 - Verify this is a NestJS app with the common foundation (`src/common/common-models/pagination.dto.ts`, `src/common/filters/http-exception.filter.ts`, `@/` path alias). If missing, copy the pieces from `gl-api-patterns/templates/common/` first (targets: `common-models/`, `filters/`, `decorators/`, `src/config/`, `src/main.ts` patterns).
 - Derive names: `Project` → folder `src/api/project/`, route `v1/projects`, collection `projects`.
-- Ask the user for the entity's **fields** (name/type/required) and whether any **status enum** or **cross-field rules** apply; also whether endpoints are dashboard-only (`@UserSessionGuard`), M2M (`@ApiKeyGuard`), or mixed (see `references/auth.md`).
+- Ask the user:
+  1. The entity's **fields** (name/type/required).
+  2. Any **status enum** or **cross-field rules**?
+  3. Are endpoints **dashboard-only** (`@UserSessionGuard`), **M2M** (`@ApiKeyGuard`), or **mixed** (see `references/auth.md`)?
 
 ## 1. Generate the module
 
