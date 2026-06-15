@@ -1,13 +1,15 @@
 ---
 name: gl-console-setup
 description: Bootstrap a project with the GraphLand UI foundation — install dependencies and shadcn components, copy the form/table/hooks/lib templates, and wire root providers. Use once per project before scaffolding modules.
-argument-hint: [rest|graphql|both]
-disable-model-invocation: true
+compatibility: Any agent that supports the Agent Skills format (Claude Code, Cursor, opencode, Codex, etc.)
+metadata:
+  graphland-invocation: "manual"  # run on explicit request, not auto-triggered
+  graphland-input: "[rest|graphql|both]"
 ---
 
 > **Locating sibling skills:** paths like `gl-console-patterns/...` or `gl-api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
-Install the GraphLand UI foundation into the current project. Data-layer variant from arguments: **$ARGUMENTS** — `rest`, `graphql`, or `both`. If empty/unsubstituted, detect it (existing `gql-client.ts`/codegen → `graphql`; an API with both surfaces → `both`); when detection is inconclusive, ask — default **`rest`**, matching the `gl-workspace-setup` intake default.
+Install the GraphLand UI foundation into the current project. Data-layer variant — `rest`, `graphql`, or `both` — from the user's request. If not stated, detect it (existing `gql-client.ts`/codegen → `graphql`; an API with both surfaces → `both`); when detection is inconclusive, ask — default **`rest`**, matching the `gl-workspace-setup` intake default.
 
 Before starting, read the guideline's adaptation notes at `gl-console-patterns/references/adaptation.md` and detect the project's stack (Vite vs Next.js, router, whether shadcn is initialized, package manager). If the project is not React + Tailwind, stop and tell the user this guideline targets React.
 

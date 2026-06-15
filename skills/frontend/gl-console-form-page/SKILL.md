@@ -1,15 +1,17 @@
 ---
 name: gl-console-form-page
 description: Scaffold a full-page multi-section create/edit form (not a sheet) following the GraphLand UI guideline. Use for complex entities — invoices, purchases, orders — that need a dedicated page rather than a side sheet.
-argument-hint: <route-path> <EntityName>
-disable-model-invocation: true
+compatibility: Any agent that supports the Agent Skills format (Claude Code, Cursor, opencode, Codex, etc.)
+metadata:
+  graphland-invocation: "manual"  # run on explicit request, not auto-triggered
+  graphland-input: "<route-path> <EntityName>"
 ---
 
 > **Locating sibling skills:** paths like `gl-console-patterns/...` or `gl-api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
 Scaffold a full-page form following the GraphLand UI guideline. Sheets (see the `gl-console-module` skill) are the default for simple CRUD — use a full page only when the entity has many fields, multiple logical sections, or line items.
 
-**Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
+**Input:** a route path and entity name (from the user's request; if not given, ask).
 **Format:** `<route-path> <EntityName>` — e.g. `invoices/create Invoice` · `purchases/create Purchase`
 
 ## 0. Preconditions and questions

@@ -1,15 +1,17 @@
 ---
 name: gl-release-notes
 description: Write release notes from git history and merged PRs — grouped Breaking/Features/Fixes sections, impact-first wording, semver suggestion, optional CHANGELOG.md update or GitHub release draft. Use when cutting a release or summarizing what shipped since the last tag.
-argument-hint: [version or git range]
-disable-model-invocation: true
+compatibility: Any agent that supports the Agent Skills format (Claude Code, Cursor, opencode, Codex, etc.)
+metadata:
+  graphland-invocation: "manual"  # run on explicit request, not auto-triggered
+  graphland-input: "[version or git range]"
 ---
 
-Generate release notes for the current repository. Version or range from arguments: **$ARGUMENTS** (if empty or not substituted, default to last tag → HEAD).
+Generate release notes for the current repository. The version or git range comes from the user's request; if none is given, default to the last tag → HEAD.
 
 ## 0. Preconditions and questions
 
-- Determine the range: `git describe --tags --abbrev=0` → HEAD by default; use $ARGUMENTS when it names a tag, range, or version.
+- Determine the range: `git describe --tags --abbrev=0` → HEAD by default; use the requested tag, range, or version when one is given.
 - Check for an existing `CHANGELOG.md` or a previous GitHub release — when one exists, match its format and tone instead of asking.
 - Ask the user (skip whatever is already clear from the repo or conversation):
   1. **Audience** — team-internal (technical detail, file/PR references ok) or customer-facing (plain language, user impact only)?

@@ -1,13 +1,15 @@
 ---
 name: gl-review
 description: Review a PR, branch, or working-tree diff against the GraphLand guidelines — backend (DTO validation, pagination contract, org/tenant scoping, module anatomy) and console (URL-synced tables, ~util.ts conventions, form/sheet patterns, TanStack Query usage). Use before merging changes to a GraphLand project.
-argument-hint: [PR number | branch | git range]
-disable-model-invocation: true
+compatibility: Any agent that supports the Agent Skills format (Claude Code, Cursor, opencode, Codex, etc.)
+metadata:
+  graphland-invocation: "manual"  # run on explicit request, not auto-triggered
+  graphland-input: "[PR number | branch | git range]"
 ---
 
 > **Locating sibling skills:** paths like `gl-console-patterns/...` or `gl-api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
-Review a diff for conformance with the GraphLand guidelines. Target from arguments: **$ARGUMENTS**.
+Review a diff for conformance with the GraphLand guidelines. The target (a PR number, branch, or git range) comes from the user's request; if none is given, default to the working tree plus the current branch vs. the default branch.
 
 ## 0. Preconditions and questions
 

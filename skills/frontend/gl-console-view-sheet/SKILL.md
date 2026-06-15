@@ -1,15 +1,17 @@
 ---
 name: gl-console-view-sheet
 description: Scaffold a read-only detail view sheet with tabs (Basic Info, related records, optional Documents) following the GraphLand UI guideline. Use when an entity needs a side-panel detail view from its list page.
-argument-hint: <route-path> <EntityName>
-disable-model-invocation: true
+compatibility: Any agent that supports the Agent Skills format (Claude Code, Cursor, opencode, Codex, etc.)
+metadata:
+  graphland-invocation: "manual"  # run on explicit request, not auto-triggered
+  graphland-input: "<route-path> <EntityName>"
 ---
 
 > **Locating sibling skills:** paths like `gl-console-patterns/...` or `gl-api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
 Scaffold a view sheet — a read-only right-side panel opened from a list row, with a tab strip. Pattern reference: `gl-console-patterns/references/sheets.md` (View sheet section).
 
-**Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
+**Input:** a route path and entity name (from the user's request; if not given, ask).
 **Format:** `<route-path> <EntityName>` — e.g. `clients Client` · `suppliers Supplier`
 
 ## 0. Preconditions and questions

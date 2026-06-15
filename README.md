@@ -24,6 +24,17 @@ npx skills add graphland-dev/skills --list
 
 Skills install to `.agents/skills/`. Scaffold skills reference paths like `gl-console-patterns/templates/...` and `gl-workspace-setup/templates/...` — **install `--all`**, not isolated skills.
 
+### Invoking a skill (works in any agent)
+
+These are standard [Agent Skills](https://agentskills.io) — they work in Claude Code, Cursor, opencode, Codex, Gemini CLI, and any other skills-compatible agent. There's no slash command to memorize: just **name the skill in plain language** and the agent loads it. The two guideline skills (`gl-api-patterns`, `gl-console-patterns`) load automatically when a task matches; the rest are run on request.
+
+```
+Use gl-workspace-setup to bootstrap "acme".
+Scaffold a Vehicle module with gl-api-module.
+```
+
+If your agent has slash-command syntax for skills (Claude Code, Cursor), `/gl-workspace-setup acme` works too — but it's just shorthand for naming the skill. The prompts below use the plain-language form so they're copy-pasteable in any agent.
+
 > **Migrating from v1.x:** all skills were renamed with a `gl-` prefix in v2.0.0 (e.g. `new-module` → `gl-console-module`, `setup-workspace` → `gl-workspace-setup`, `setup-foundation` → `gl-console-setup`, `ui-patterns` → `gl-console-patterns`). Remove the old skills and re-install `--all`.
 
 ## What's inside
@@ -45,6 +56,8 @@ Skills install to `.agents/skills/`. Scaffold skills reference paths like `gl-co
 | --- | --- |
 | `gl-api-patterns` | Backend guideline — modules, DTOs, pagination, Better Auth. Auto-loaded when relevant. |
 | `gl-api-module` | Scaffold CRUD module (**Better Auth only**). |
+| `gl-billing-patterns` | Subscription/entitlement guideline — shared plans package, computed entitlements, `EntitlementService.assert*` enforcement, gateway-agnostic payments + webhooks. Auto-loaded when relevant. |
+| `gl-billing-module` | Add subscriptions, plans, paywalls, usage limits, and feature gating to a project (API + shared package + console gates). |
 
 ### `fullstack/` — monorepo
 
@@ -91,7 +104,7 @@ Copy templates from the skill pack and verify both apps build.
 ### Let the agent ask
 
 ```
-/gl-workspace-setup acme
+Use gl-workspace-setup to bootstrap acme (let me answer the intake questions).
 ```
 
 ### Better Auth (default templates)
@@ -147,7 +160,7 @@ Verify both apps build, then commit the initial scaffold.
 **`gl-api-module`** — add the first backend resource:
 
 ```
-/gl-api-module Vehicle
+Use gl-api-module to scaffold a Vehicle module.
 
 Fields: name (required), plateNumber (unique), dailyRate (number),
 status (enum: available | rented | maintenance).
@@ -157,7 +170,7 @@ List endpoint: filter by status, text search on name/plateNumber.
 **`gl-console-module`** — the matching console list page:
 
 ```
-/gl-console-module vehicles/Vehicle
+Use gl-console-module for vehicles/Vehicle.
 
 Columns: name, plateNumber, dailyRate, status (badge).
 Filter sheet: status select + dailyRate range.
@@ -167,7 +180,7 @@ Wire it to the Vehicle REST endpoints from apps/api.
 **`gl-console-view-sheet`** — detail panel off the list:
 
 ```
-/gl-console-view-sheet vehicles/Vehicle
+Use gl-console-view-sheet for vehicles/Vehicle.
 
 Tabs: Basic Info, Rental History (paginated table), Documents.
 Open from the row actions of the vehicle list.
@@ -176,7 +189,7 @@ Open from the row actions of the vehicle list.
 **`gl-console-form-page`** — a complex entity that outgrows a sheet:
 
 ```
-/gl-console-form-page rentals/Rental
+Use gl-console-form-page for rentals/Rental.
 
 Sections: customer info, vehicle picker (async combobox, only
 status=available), pricing with line items, notes.
@@ -186,7 +199,7 @@ Edit mode loads the rental by id from the route param.
 **`gl-console-graphql-util`** — data operations without scaffolding UI:
 
 ```
-/gl-console-graphql-util Rental garage
+Use gl-console-graphql-util for Rental in the garage namespace.
 
 Operations: paginated list (filter by status + vehicleId), create,
 update, and a cancelRental mutation. Zod schema must match the API DTO.
@@ -216,7 +229,7 @@ pagination contract, and org scoping on every query.
 **`gl-review`** — guideline review of a whole change before merging:
 
 ```
-/gl-review 42
+Use gl-review on PR 42.
 
 The PR adds rental cancellation. Pay extra attention to tenant scoping
 on the new queries and the cancelRental mutation.
@@ -225,7 +238,7 @@ on the new queries and the cancelRental mutation.
 **`gl-release-notes`** — cut a release:
 
 ```
-/gl-release-notes v1.4.0
+Use gl-release-notes for v1.4.0.
 
 Customer-facing notes for everything since v1.3.0. Update CHANGELOG.md
 and draft the GitHub release.

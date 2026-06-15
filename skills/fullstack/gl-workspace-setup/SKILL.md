@@ -1,13 +1,15 @@
 ---
 name: gl-workspace-setup
 description: Bootstrap a GraphLand fullstack monorepo — bun workspaces with a NestJS API (apps/api), a React console (apps/console), mprocs, and docker-compose. Asks upfront for console framework, API data, auth, tenancy, workspace route, and optional API infra (mail, redis, queues, sms). All reference templates are bundled in ./templates/. Vite consoles always use TanStack Router; all consoles use TanStack Query. Use once when starting a new fullstack project.
-argument-hint: <project-name>
-disable-model-invocation: true
+compatibility: Any agent that supports the Agent Skills format (Claude Code, Cursor, opencode, Codex, etc.)
+metadata:
+  graphland-invocation: "manual"  # run on explicit request, not auto-triggered
+  graphland-input: "<project-name>"
 ---
 
 > **Locating sibling skills:** paths like `gl-console-patterns/...` or `gl-api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
-Bootstrap a fullstack monorepo using **bundled templates** in `./templates/` (see `./templates/README.md`). Project name from arguments: **$ARGUMENTS** (if empty or not substituted, ask the user).
+Bootstrap a fullstack monorepo using **bundled templates** in `./templates/` (see `./templates/README.md`). Project name from the user's request (if not given, ask).
 
 **Templates are source-only** — no `node_modules/` or `dist/` in the skill pack. Run `bun install` only in the **scaffolded** monorepo root after copying templates, never inside the installed skill's `templates/` directory.
 
@@ -15,7 +17,7 @@ Bootstrap a fullstack monorepo using **bundled templates** in `./templates/` (se
 
 ## 0. Intake — ask these questions first
 
-Ask the user (or infer from `$ARGUMENTS` / conversation when already stated). If anything is unclear, ask — do not guess.
+Ask the user (or infer from the request / conversation when already stated). If anything is unclear, ask — do not guess.
 
 | # | Question | Options | Default when user defers |
 | --- | --- | --- | --- |

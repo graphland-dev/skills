@@ -1,16 +1,17 @@
 ---
 name: gl-api-module
 description: Scaffold a NestJS feature module (controller, service, repository, DTOs, Mongoose entity, contracts, module) following the GraphLand API guideline — org-scoped CRUD with pagination. Use when adding a new resource/endpoint group to a GraphLand backend.
-argument-hint: <EntityName>
-disable-model-invocation: true
+compatibility: Any agent that supports the Agent Skills format (Claude Code, Cursor, opencode, Codex, etc.)
+metadata:
+  graphland-invocation: "manual"  # run on explicit request, not auto-triggered
+  graphland-input: "<EntityName>"
 ---
 
 > **Locating sibling skills:** paths like `gl-console-patterns/...` or `gl-api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
 Scaffold a feature module following the GraphLand API guideline (`gl-api-patterns/SKILL.md`).
 
-**Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
-**Format:** `<EntityName>` — e.g. `Project` · `Invoice` · `Webhook`
+**Input:** the entity name, e.g. `Project` · `Invoice` · `Webhook` (take it from the user's request; if not given, ask).
 
 ## 0. Preconditions and questions
 

@@ -1,15 +1,17 @@
 ---
 name: gl-console-module
 description: Scaffold a full CRUD list module (list page, ~util.ts, form sheet, filter sheet) following the GraphLand UI guideline. Use when adding a new list page with create/edit/delete operations.
-argument-hint: <route-path> <EntityName>
-disable-model-invocation: true
+compatibility: Any agent that supports the Agent Skills format (Claude Code, Cursor, opencode, Codex, etc.)
+metadata:
+  graphland-invocation: "manual"  # run on explicit request, not auto-triggered
+  graphland-input: "<route-path> <EntityName>"
 ---
 
 > **Locating sibling skills:** paths like `gl-console-patterns/...` or `gl-api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
 Scaffold a full CRUD list module following the GraphLand UI guideline.
 
-**Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
+**Input:** a route path and entity name (from the user's request; if not given, ask).
 **Format:** `<route-path> <EntityName>` — e.g. `products/services Service` · `employees/departments Department`
 
 ## 0. Preconditions and questions

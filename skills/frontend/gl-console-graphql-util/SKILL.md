@@ -1,15 +1,17 @@
 ---
 name: gl-console-graphql-util
 description: Generate a co-located ~util.ts with GraphQL queries, mutations, and Zod form schema for an entity, following the GraphLand UI guideline. Use when adding data operations to an existing module or starting a util file from scratch.
-argument-hint: <EntityName> <namespace>
-disable-model-invocation: true
+compatibility: Any agent that supports the Agent Skills format (Claude Code, Cursor, opencode, Codex, etc.)
+metadata:
+  graphland-invocation: "manual"  # run on explicit request, not auto-triggered
+  graphland-input: "<EntityName> <namespace>"
 ---
 
 > **Locating sibling skills:** paths like `gl-console-patterns/...` or `gl-api-patterns/...` refer to other skills from the GraphLand set, installed alongside this one in your agent's skills directory (in the source repo they live under `skills/frontend/`, `skills/backend/`, `skills/fullstack/`).
 
 Generate a `~util.ts` for an entity following the GraphLand data-layer conventions (`gl-console-patterns/references/data-layer.md`).
 
-**Arguments:** $ARGUMENTS — if empty or not substituted by your agent, ask the user.
+**Input:** an entity name and namespace (from the user's request; if not given, ask).
 **Format:** `<EntityName> <namespace>` — e.g. `Account accounting` · `Product inventory`
 
 ## 0. Preconditions and questions
