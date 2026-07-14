@@ -11,8 +11,10 @@ npx skills add graphland-dev/skills --all -y
 ```
 
 ```bash
-npx skills add graphland-dev/skills --all -a cursor -y
-npx skills add graphland-dev/skills --list
+npx skills add graphland-dev/skills --all -a cursor -y   # target a specific agent
+npx skills add graphland-dev/skills --all -g -y          # global — every project (~/.claude/skills, ~/.cursor/skills, …)
+npx skills add graphland-dev/skills --list               # see what's in the pack
+npx skills update -g                                     # update a global install later
 ```
 
 **As a Claude Code plugin** (optional):
@@ -22,7 +24,7 @@ npx skills add graphland-dev/skills --list
 /plugin install graphland@graphland
 ```
 
-Skills install to `.agents/skills/`. Scaffold skills reference paths like `gl-console-patterns/templates/...` and `gl-workspace-setup/templates/...` — **install `--all`**, not isolated skills.
+Skills install to `.agents/skills/` in the project (with `-g`, to the agent's user-level skills directory instead). Scaffold skills reference paths like `gl-console-patterns/templates/...` and `gl-workspace-setup/templates/...` — **install `--all`**, not isolated skills.
 
 ### Invoking a skill (works in any agent)
 
