@@ -49,6 +49,7 @@ If your agent has slash-command syntax for skills (Claude Code, Cursor), `/gl-wo
 | `gl-console-form-page` | Scaffold a full-page form. |
 | `gl-console-view-sheet` | Scaffold a read-only detail sheet. |
 | `gl-console-graphql-util` | Generate `~util.ts` with GQL + Zod. |
+| `gl-console-deploy` | Deploy the console to Cloudflare Workers and attach its custom domain — Vite as static assets, Next.js via [OpenNext](https://opennext.js.org/cloudflare). |
 
 ### `backend/` — NestJS API patterns
 
@@ -203,6 +204,17 @@ Use gl-console-graphql-util for Rental in the garage namespace.
 
 Operations: paginated list (filter by status + vehicleId), create,
 update, and a cancelRental mutation. Zod schema must match the API DTO.
+```
+
+**`gl-console-deploy`** — ship the console to Cloudflare:
+
+```
+Use gl-console-deploy for apps/console.
+
+Deploy to Cloudflare Workers on console.fleetly.app (zone is already on
+our account). Production API is https://api.fleetly.app — set
+VITE_BACKEND_BASE_URL before the build. Verify a deep route survives a
+hard refresh on the custom domain.
 ```
 
 **`gl-console-setup`** — adopt the foundation in an app that already exists:
