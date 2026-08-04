@@ -18,11 +18,10 @@ Feature list queries extend it with their filters:
 ```ts
 export class EntityListQueryDto extends PaginationQueryDto {
   status?: EntityStatus;   // @IsEnum
-  search?: string;         // case-insensitive name regex
 }
 ```
 
-**Response**:
+**API response** (what the controller returns, what the frontend `DataTable` consumes):
 
 ```ts
 {
@@ -33,30 +32,49 @@ export class EntityListQueryDto extends PaginationQueryDto {
 
 Each feature declares a concrete `PaginatedEntitiesResponseDto` (typed `data` + `PaginationMetaDto`) so Swagger emits exact schemas — the generic `PaginatedResponseDto<T>` exists for internal typing, but generics don't survive Swagger.
 
-## Service/repository split
+## Two pagination shapes — don't confuse them
 
-The repository runs the two-query pattern (page + count) in parallel; the service builds the filter and assembles the meta:
+`PersistenceRepositoryService.findAllWithPagination()` (see [persistence.md](persistence.md)) returns an **`AppPaginationResponseDto`**, whose `meta` uses different field names:
 
 ```ts
-// repository
-const [data, total] = await Promise.all([
-  this.entityModel.find(filter).sort({ createdAt: -1 })
-    .skip((page - 1) * limit).limit(limit).exec(),
-  this.entityModel.countDocuments(filter).exec(),
-]);
+{
+  data: DOCUMENT_TYPE[],
+  meta: {
+    currentPage: number,
+    hasNextPage: boolean,
+    totalCount: number,
+    totalPages: number,
+  },
+}
+```
 
-// service
+This is the repository-level shape — it is *not* what the controller returns. The service is always responsible for mapping it to the API-facing `{ page, limit, total, totalPages }` shape:
+
+```ts
+// repository (inherited from PersistenceRepositoryService, nothing to write)
+const result = await this.entityRepository.findAllWithPagination({
+  where: and(eq('organizationId', organizationId), eq('status', query.status)),
+  pagination: { page: query.page, limit: query.limit, sortBy: 'createdAt' },
+});
+
+// service — map AppPaginationResponseDto.meta -> API meta
 return {
-  data: data.map((d) => this.toResponse(d)),
-  meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  data: result.data.map((d) => this.toResponse(d)),
+  meta: {
+    page: result.meta.currentPage,
+    limit: query.limit ?? 20,
+    total: result.meta.totalCount,
+    totalPages: result.meta.totalPages,
+  },
 };
 ```
 
-Default sort is `createdAt: -1` (newest first). Back the common list filter with a compound index: `{ organizationId: 1, createdAt: -1 }` (see `templates/example-module/entities/entity.entity.ts`).
+`limit: -1` fetches every matching document unpaginated (`hasNextPage: false`, `totalPages: 1`) — used for internal bulk reads (e.g. `findTrialsExpiredBefore` in a cron job), never wired to a public list endpoint.
 
 ## Conventions
 
-- `page` is 1-indexed everywhere (URL, API, frontend `DataTable` prop).
-- The org filter is always part of the query — pagination never leaks across tenants ([auth.md](auth.md)).
-- Search = `{ name: { $regex: query.search, $options: 'i' } }` for simple cases; add a text index when fields multiply.
-- Frontend mapping: this `meta` feeds `DataTable`'s `totalCount`/`totalPages` props directly (frontend guideline → `references/data-table.md`).
+- `page` is 1-indexed everywhere (URL, API, repository, frontend `DataTable` prop).
+- The org filter is always part of `where` — pagination never leaks across tenants ([auth.md](auth.md)).
+- Default sort is `createdAt: -1` (newest first) via `pagination.sortBy`/`pagination.sort` — no need to hand-roll `.sort().skip().limit()`, the base class does it.
+- Filtering: build `where` with the query-builder DSL (`eq`, `contains`, `and`, ...) from [persistence.md](persistence.md) — e.g. `contains('name', query.search)` for a case-insensitive search, not a hand-rolled `$regex`.
+- Frontend mapping: the API `meta` feeds `DataTable`'s `totalCount`/`totalPages` props directly (frontend guideline → `references/data-table.md`).

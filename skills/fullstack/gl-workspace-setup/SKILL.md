@@ -152,7 +152,7 @@ When **`mail`** is enabled, add the MJML asset entry:
 
 If MJML templates live in a shared package instead, point `assets[].include` at that package (e.g. `../../packages/shared-api/src/mail/templates/**/*.mjml`). Set `start:prod` to `node dist/apps/api/src/main`.
 
-5. Wire shared pieces every variant needs: `ValidationPipe`, `HttpExceptionFilter`, modular `config/` + Joi validation, `DatabaseModule`, Swagger at `/docs`, port **4001**.
+5. Wire shared pieces every variant needs: `ValidationPipe`, `HttpExceptionFilter`, modular `config/` + Joi validation, `DatabaseModule`, `PersistenceRepositoryService` + query builder (`src/common/database/`, see `gl-api-patterns/references/persistence.md` — every feature repository extends this), Swagger at `/docs`, port **4001**.
 
 ### 2b. Better Auth foundation (when auth = `better-auth`)
 
@@ -163,7 +163,7 @@ Copy `./templates/api/` into `apps/api/` (package.json, nest-cli, tsconfig, `src
 | `main.ts` | `bodyParser: false` (required by `@thallesp/nestjs-better-auth`), CORS, Swagger |
 | `auth/` | Better Auth + `organization()` plugin, Mongo adapter, session hooks |
 | `authorization/` | `UserSessionGuard` + `@OrganizationId()` |
-| `common/` | Database, filters, pagination DTOs, optional mail |
+| `common/` | `DatabaseModule`, `PersistenceRepositoryService` + query builder (every feature repository extends this — `gl-api-patterns/references/persistence.md`), filters, pagination DTOs, optional mail |
 | `app.controller.ts` | HATEOAS root + `/health` |
 
 **No `src/api/*` feature modules yet** — add REST resources with `gl-api-module` (org-scoped via `@OrganizationId()` when multi-tenant; user-scoped when single-tenant — see §2f).

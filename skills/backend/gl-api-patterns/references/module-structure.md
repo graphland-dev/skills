@@ -38,13 +38,13 @@ Full working example: `templates/example-module/`. Register each feature module 
 
 - **Controller**: declares the route, guard, Swagger metadata (`@ApiTags`, `@ApiOperation`), and delegates. One-liner bodies.
 - **Service**: takes `organizationId` as an explicit parameter on every public method (never from the body). Maps documents to `ResponseDto`s (`toResponse private method`) so Mongoose internals don't leak. Throws `NotFoundException`/`ConflictException` etc.
-- **Repository**: thin Mongoose wrapper (`create`, `findManyPaginated`, `findOne`, `updateOne`, `deleteOne`, plus cascade helpers like `deleteByOrganizationId`). Takes `FilterQuery` from the service; no HTTP concepts.
+- **Repository**: extends `PersistenceRepositoryService<DOCUMENT_TYPE>` — `create`/`findOne`/`findAllWithPagination`/`update`/`deleteOne` are inherited. Call them directly from the service with an inline `and`/`eq`/... filter; don't add a repository method that only wraps one of them for a one-off filter. Add a method only when the same filter is reused across several call sites, or for cascade helpers (`deleteByOrganizationId`) and raw-model escape hatches the base class doesn't cover (atomic `$inc`, aggregation). See [persistence.md](persistence.md). No HTTP concepts.
 - **Cross-module dependencies**: import the other module and inject its exported service; use `forwardRef(() => OtherModule)` for cycles.
 
 ## Events and listeners (async side-effects)
 
 For fire-and-forget side-effects (audit logging, counters, notifications) use NestJS `EventEmitter2`: define a payload class in `events/`, `eventEmitter.emit('entity.created', new EntityCreatedEvent(...))` from the service, and handle it in `listeners/` with `@OnEvent('entity.created')`. Keeps the request path fast and the side-effect isolated/testable.
 
-## Advanced: hook-based repository base class
+## Repository base class
 
-For projects with many CRUD modules, the bundled Better Auth API template defines an abstract `PersistenceRepositoryService<T>` in `gl-workspace-setup/templates/api/src/common/database/` (permission/before/after hooks per operation, pagination, populations, key mapping) that feature repositories extend. Adopt it once a project crosses ~5 similar CRUD modules; start with the plain repository in `gl-api-patterns/templates/example-module/` until then.
+Every repository extends `PersistenceRepositoryService<DOCUMENT_TYPE>` from day one — see [persistence.md](persistence.md) for the full API (CRUD methods, the `and`/`eq`/`dateRange`/... query-builder DSL, the pagination meta shape, and the raw-model escape hatch for atomic/aggregate ops). The base class lives at `src/common/database/persistence.repository.service.ts` + `persistence-query-builder.ts`; both are bundled in `gl-workspace-setup/templates/api/src/common/database/` (new projects) and `gl-api-patterns/templates/common/database/` (retrofit an existing app missing it — see `gl-api-module` step 0). `templates/example-module/entity.repository.service.ts` shows the pattern in full.

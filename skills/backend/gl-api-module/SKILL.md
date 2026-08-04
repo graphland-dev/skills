@@ -15,7 +15,7 @@ Scaffold a feature module following the GraphLand API guideline (`gl-api-pattern
 
 ## 0. Preconditions and questions
 
-- Verify this is a NestJS app with the common foundation (`src/common/common-models/pagination.dto.ts`, `src/common/filters/http-exception.filter.ts`, `@/` path alias). If missing, copy the pieces from `gl-api-patterns/templates/common/` first (targets: `common-models/`, `filters/`, `decorators/`, `src/config/`, `src/main.ts` patterns).
+- Verify this is a NestJS app with the common foundation (`src/common/common-models/pagination.dto.ts`, `src/common/database/persistence.repository.service.ts`, `src/common/filters/http-exception.filter.ts`, `@/` path alias). If missing, copy the pieces from `gl-api-patterns/templates/common/` first (targets: `common-models/`, `database/` (`PersistenceRepositoryService` + query builder — every feature repository extends this, see `gl-api-patterns/references/persistence.md`), `dto/AppPaginationResponseDto.ts`, `filters/`, `decorators/`, `src/config/`, `src/main.ts` patterns).
 - Derive names: `Project` → folder `src/api/project/`, route `v1/projects`, collection `projects`.
 - Ask the user:
   1. The entity's **fields** (name/type/required).
@@ -31,7 +31,7 @@ Copy `gl-api-patterns/templates/example-module/` into `src/api/<feature>/`, subs
 | `entities/entity.entity.ts` | Real `@Prop` fields; keep `organizationId` (required, indexed) and the `{ organizationId, createdAt: -1 }` compound index |
 | `dto/entity.dto.ts` | Create/Update/ListQuery/Response DTOs per field — every field validated + `@ApiProperty`; ListQuery extends `PaginationQueryDto` |
 | `entity.contracts.ts` | Real enums (or delete if none) |
-| `entity.repository.service.ts` | Extra query helpers only if needed; keep `deleteByOrganizationId` |
+| `entity.repository.service.ts` | Extends `PersistenceRepositoryService<EntityDocument>` (already wired in the template) — don't add a method that just wraps `findOne`/`update`/etc. for a one-off filter, call those directly from the service with `and`/`eq`; only add a method when the same filter is reused across call sites, or the op needs raw-model access; keep `deleteByOrganizationId` |
 | `entity.service.ts` | Real filter building in `findMany`, real `toResponse` mapping |
 | `entity.controller.ts` | Apply the chosen guard decorators per endpoint; adjust routes |
 | `entity.module.ts` | Import other feature modules if the service needs them (`forwardRef` for cycles) |

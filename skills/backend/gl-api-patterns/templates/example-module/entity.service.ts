@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-// Mongoose 9 renamed FilterQuery<T> to QueryFilter<T>
-import type { QueryFilter } from 'mongoose';
+import { and, contains, eq } from '@/common/database/persistence-query-builder';
 import {
   CreateEntityDto,
   EntityListQueryDto,
@@ -8,7 +7,7 @@ import {
   PaginatedEntitiesResponseDto,
   UpdateEntityDto,
 } from './dto/entity.dto';
-import { Entity, EntityDocument } from './entities/entity.entity';
+import { EntityDocument } from './entities/entity.entity';
 import { EntityRepositoryService } from './entity.repository.service';
 
 /**
@@ -23,10 +22,10 @@ export class EntityService {
     input: CreateEntityDto,
     organizationId: string,
   ): Promise<EntityResponseDto> {
-    const document = await this.entityRepository.create({
-      ...input,
-      organizationId,
-    });
+    const document = (await this.entityRepository.create({
+      data: { ...input, organizationId },
+    })) as EntityDocument;
+
     return this.toResponse(document);
   }
 
@@ -37,39 +36,34 @@ export class EntityService {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
 
-    const filter: QueryFilter<Entity> = { organizationId };
+    const filters = [eq('organizationId', organizationId)];
     if (query.status) {
-      filter.status = query.status;
+      filters.push(eq('status', query.status));
     }
     if (query.search) {
-      filter.name = { $regex: query.search, $options: 'i' };
+      filters.push(contains('name', query.search));
     }
 
-    const { data, total } = await this.entityRepository.findManyPaginated(
-      filter,
-      page,
-      limit,
-    );
+    const result = await this.entityRepository.findAllWithPagination({
+      where: and(...filters),
+      pagination: { page, limit, sortBy: 'createdAt' },
+    });
 
     return {
-      data: data.map((doc) => this.toResponse(doc)),
+      data: (result.data as EntityDocument[]).map((doc) =>
+        this.toResponse(doc),
+      ),
       meta: {
-        page,
+        page: result.meta.currentPage,
         limit,
-        total,
-        totalPages: Math.ceil(total / limit),
+        total: result.meta.totalCount,
+        totalPages: result.meta.totalPages,
       },
     };
   }
 
   async findOne(id: string, organizationId: string): Promise<EntityResponseDto> {
-    const document = await this.entityRepository.findOne({
-      _id: id,
-      organizationId,
-    });
-    if (!document) {
-      throw new NotFoundException('Entity not found');
-    }
+    const document = await this.requireEntity(id, organizationId);
     return this.toResponse(document);
   }
 
@@ -78,24 +72,38 @@ export class EntityService {
     input: UpdateEntityDto,
     organizationId: string,
   ): Promise<EntityResponseDto> {
-    const document = await this.entityRepository.updateOne(
-      { _id: id, organizationId },
-      input,
-    );
-    if (!document) {
-      throw new NotFoundException('Entity not found');
-    }
-    return this.toResponse(document);
+    await this.requireEntity(id, organizationId);
+
+    const result = await this.entityRepository.update({
+      where: and(eq('_id', id), eq('organizationId', organizationId)),
+      data: input,
+    });
+
+    return this.toResponse(result.document as EntityDocument);
   }
 
   async remove(id: string, organizationId: string): Promise<void> {
-    const document = await this.entityRepository.deleteOne({
-      _id: id,
-      organizationId,
+    await this.requireEntity(id, organizationId);
+
+    await this.entityRepository.deleteOne({
+      where: and(eq('_id', id), eq('organizationId', organizationId)),
     });
+  }
+
+  private async requireEntity(
+    id: string,
+    organizationId: string,
+  ): Promise<EntityDocument> {
+    const document = await this.entityRepository.findByIdForOrganization(
+      id,
+      organizationId,
+    );
+
     if (!document) {
       throw new NotFoundException('Entity not found');
     }
+
+    return document;
   }
 
   private toResponse(document: EntityDocument): EntityResponseDto {

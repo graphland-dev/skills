@@ -7,15 +7,16 @@ description: GraphLand's NestJS backend guideline — feature-module anatomy (co
 
 The company backend guideline for Better Auth APIs. Canonical stack: **NestJS 11 (REST) + MongoDB/Mongoose + Better Auth (orgs) + class-validator + Swagger**, run with Bun in dev. For the monorepo around it, see the `gl-workspace-setup` skill; for the frontend consuming it, see the `frontend/gl-console-patterns` skill.
 
-**Copy, don't re-derive**: `templates/example-module/` is a complete generic org-scoped CRUD feature (entity, DTOs, repository, service, controller, module) and `templates/common/` holds the shared pieces (pagination DTOs, exception filter, bootstrap `main.ts`, Joi env schema, config factories, `@OrganizationId()` decorator). Scaffold new features with the `gl-api-module` skill.
+**Copy, don't re-derive**: `templates/example-module/` is a complete generic org-scoped CRUD feature (entity, DTOs, repository, service, controller, module) and `templates/common/` holds the shared pieces (pagination DTOs, exception filter, bootstrap `main.ts`, Joi env schema, config factories, `@OrganizationId()` decorator, the `PersistenceRepositoryService` base class + query builder under `common/database/`). Scaffold new features with the `gl-api-module` skill.
 
 ## Pattern map
 
 | Pattern | Rule of thumb | Reference |
 | --- | --- | --- |
 | Feature modules | One feature = one folder: `controller / service / repository.service / dto/ / entities/ / contracts / module`; strict layering, `@/` path alias | [references/module-structure.md](references/module-structure.md) |
+| Persistence | Every repository extends `PersistenceRepositoryService<DOCUMENT_TYPE>`; build `where` filters with the `and`/`eq`/`dateRange`/... query-builder DSL, never raw Mongo objects; drop to the injected model only for atomic/aggregate ops it doesn't cover | [references/persistence.md](references/persistence.md) |
 | Validation | class-validator DTOs + global `ValidationPipe({ whitelist, transform, forbidNonWhitelisted })`; custom constraints for cross-field rules | [references/validation.md](references/validation.md) |
-| Pagination | `PaginationQueryDto` (page/limit, max 100) in, `{ data, meta: { page, limit, total, totalPages } }` out — same shape on every list endpoint | [references/pagination.md](references/pagination.md) |
+| Pagination | `PaginationQueryDto` (page/limit, max 100) in, `{ data, meta: { page, limit, total, totalPages } }` out — same shape on every list endpoint; repository-level pagination returns a differently-shaped `AppPaginationResponseDto` that the service maps over | [references/pagination.md](references/pagination.md) |
 | Auth & tenancy | Better Auth (sessions + orgs) with `@UserSessionGuard` / `@ApiKeyGuard`; every entity carries an indexed `organizationId` and every query filters by it | [references/auth.md](references/auth.md) |
 | Config | Modular `@nestjs/config` factories + Joi schema — invalid env fails at boot | [references/config.md](references/config.md) |
 | Infra | BullMQ + Bull Board, Nodemailer/MJML, Swagger at `/docs`, graceful shutdown, Jest | [references/infra-notes.md](references/infra-notes.md) |
