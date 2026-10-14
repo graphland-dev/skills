@@ -1,7 +1,7 @@
 {
   "name": "graphland",
-  "description": "GraphLand's fullstack engineering guideline: frontend patterns (React Hook Form + Zod forms, DataTable over ReUI DataGrid, sheet-based CRUD, GraphQL/REST data layer), NestJS backend patterns (feature modules, class-validator DTOs, pagination, org multi-tenancy), and bun-workspace monorepo setup \u2014 plus scaffold commands for modules, pages, and workspaces.",
-  "version": "2.2.0",
+  "description": "GraphLand's fullstack engineering guideline: frontend patterns, NestJS backend conventions, Graphland PGW billing and entitlements, and bun-workspace monorepo setup.",
+  "version": "2.3.0",
   "author": {
     "name": "GraphLand",
     "url": "https://github.com/graphland-dev"
@@ -18,6 +18,7 @@
     "./skills/backend/gl-api-module",
     "./skills/backend/gl-billing-patterns",
     "./skills/backend/gl-billing-module",
+    "./skills/backend/gl-pgw-billing",
     "./skills/fullstack/gl-workspace-setup",
     "./skills/general/gl-review",
     "./skills/general/gl-release-notes"

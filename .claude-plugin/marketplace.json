@@ -9,7 +9,7 @@
     {
       "name": "graphland",
       "source": "./",
-      "description": "GraphLand's fullstack guideline: frontend (forms, DataTable, sheets, data layer), NestJS backend (modules, DTOs, pagination, multi-tenancy), and bun-workspace monorepo scaffolding."
+      "description": "GraphLand's fullstack guideline: frontend patterns, NestJS backend conventions, Graphland PGW billing, and bun-workspace monorepo scaffolding."
     }
   ]
 }
