@@ -61,6 +61,7 @@ If your agent has slash-command syntax for skills (Claude Code, Cursor), `/gl-wo
 | `gl-api-module` | Scaffold CRUD module (**Better Auth only**). |
 | `gl-billing-patterns` | Subscription/entitlement guideline — shared plans package, computed entitlements, `EntitlementService.assert*` enforcement, gateway-agnostic payments + webhooks. Auto-loaded when relevant. |
 | `gl-billing-module` | Add subscriptions, plans, paywalls, usage limits, and feature gating to a project (API + shared package + console gates). |
+| `gl-pgw-billing` | Integrate Graphland PGW subscription billing — provisioning, hosted checkout, plan gates, quotas, billing status, invoices, and quotations. |
 
 ### `fullstack/` — monorepo
 
@@ -238,6 +239,16 @@ the URL-synced pattern from gl-console-patterns.
 ```
 Review apps/api/src/vehicle against gl-api-patterns — DTO validation,
 pagination contract, and org scoping on every query.
+```
+
+**`gl-pgw-billing`** — connect an application to Graphland PGW:
+
+```
+Use gl-pgw-billing to add subscription billing to fleetly.
+
+Provision a free billing account when an organization is created, add hosted
+checkout and invoice payment, gate AI dispatch behind a boolean feature, and
+limit active vehicles with a non-consumable entitlement.
 ```
 
 **`gl-review`** — guideline review of a whole change before merging:

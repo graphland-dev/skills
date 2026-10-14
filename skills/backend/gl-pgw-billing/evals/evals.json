@@ -1,0 +1,23 @@
+{
+  "skill_name": "gl-pgw-billing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building a new Graphland app 'waland' (NestJS GraphQL API + React/Vite console, multi-tenant by org). Wire it up to PGW billing: free plan on signup, plans page with checkout, and the AI page should only be available on paid plans. Give me the concrete files and code.",
+      "expected_output": "PGWBilling.forRootAsync with private key; ensureBillingAccount on org create (best-effort); checkout mutation proxy using planKey+variantKey; shared feature-key constants + gate catalog; boolean guard via getEntitlement (not assertAndConsume); PgWProvider with public key; status gate keeping billing reachable; FeatureGate on AI page; refresh() on checkout return.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "limit how many projects an org can create based on their plan. pgw has `projects_count` as non_consumable. nest backend + react frontend, what do I change?",
+      "expected_output": "assertAndConsume in service before insert with countDocuments currentQuantity and natural-key requestId; explains non_consumable records nothing; not added to guard catalog; usage bar + action gate in UI; no nav lock.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Users on the yearly plan click 'Choose plan' and get 'No published PGW price variant exists for plan pro and 12 month(s)'. Monthly works. Find the cause and propose a fix.",
+      "expected_output": "Identifies days→months→days round trip (365 vs 360); fix by sending variantKey/billingCycleDays end-to-end; mentions codegen/DTO change.",
+      "files": []
+    }
+  ]
+}
