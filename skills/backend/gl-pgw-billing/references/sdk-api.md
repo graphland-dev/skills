@@ -21,7 +21,7 @@ Full docs are in `node_modules/@graphland/pgw-merchant/README.md`. Types are in 
 | `getEntitlement(id, key)` | `{ type, allowed, effectiveLimit?, remaining?, consumed? }`. Unknown key → `NOT_FOUND` error. |
 | `check({ billingCustomerId, featureKey, currentQuantity, requestedQuantity })` | Returns `allowed:false, code:"ENTITLEMENT_EXCEEDED"`. Doesn't throw. |
 | `consume({ billingCustomerId, featureKey, quantity, requestId })` | Idempotent on `requestId` |
-| `createCheckoutSession({ organizationId, planKey, priceVariantKey, customerName?, customerEmail?, customerPhone?, successUrl?, cancelUrl?, failUrl? })` | → `{ sessionId, redirectUrl, invoiceId }`. PGW chooses create vs change. |
+| `createCheckoutSession({ organizationId, planKey, priceVariantKey, customerName?, customerEmail?, customerPhone?, successUrl?, cancelUrl?, failUrl? })` | → `{ sessionId, redirectUrl, transactionId, invoiceId, expiresAt? }`. `transactionId` and `invoiceId` are the same PGW reference (the latter kept for the existing field name). PGW chooses create vs change. |
 | `payInvoice({ invoiceNumber, successUrl?, cancelUrl?, failUrl? })` | Reopens hosted checkout. Creates no invoice. |
 
 `EntitlementService.assertAndConsume({ tenant, featureKey, currentQuantity, requestId? })` handles consumable (consume 1) and non_consumable (check). It throws `ForbiddenException` on denial and **throws for boolean**.

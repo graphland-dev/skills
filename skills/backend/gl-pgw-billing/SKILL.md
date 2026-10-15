@@ -60,7 +60,10 @@ helper that checks `getEntitlement(...).allowed`. See
 
 1. **PGW catalog**: features, plans, and variants exist and are published for your `clientId`. You can't gate on a key PGW doesn't know, because the server returns `NOT_FOUND`.
 2. **Shared feature keys**: one constants module that both server and client import, plus an operation → feature gate map. → [references/feature-keys.md](references/feature-keys.md)
-3. **Server**: SDK module, provisioning on tenant create, checkout and pay-invoice proxy, boolean guard, quota checks in services. → [references/server-nest.md](references/server-nest.md)
+3. **Server**: detect the host framework first, then wire the SDK module.
+   - **NestJS**: register `PGWBilling.forRootAsync(...)` (the `/nest` subpath, aliased `PGWBillingModule`) as a **global** module before anything else — it provides `PAYMENT_GATEWAY` (inject via `@Inject(PAYMENT_GATEWAY) gateway: PaymentGateway`), `EntitlementService`, and `PGW_BILLING_CONFIG`. Config (`PGWBillingConfig`: `apiKey`, `clientId` required; `baseUrl?`, `consoleUrl?`, `displayName?`, `defaultPlanKey?`, `defaultPriceVariantKey?`, `checkoutReturnPath?` optional) comes from a `useFactory` reading `ConfigService`, not hardcoded — `consoleUrl` is type-optional but needed in practice to build checkout return URLs. Missing `apiKey`/`clientId` makes the gateway log a warning and no-op/throw on use — validate env at boot (Joi/zod) so prod can't start without them. → [references/server-nest.md § Module setup](references/server-nest.md#1-module-setup)
+   - **Not NestJS**: use `GraphlandPGWClient` directly (same method names, no module/DI layer) and recreate the boolean/quota guard as framework middleware. → [references/server-nest.md § Without Nest](references/server-nest.md#7-without-nest)
+   - Then, regardless of framework: provisioning on tenant create, checkout and pay-invoice proxy, boolean guard, quota checks in services. → [references/server-nest.md](references/server-nest.md)
 4. **Client**: `PgWProvider` per active customer, subscription-status gate, page, action, and nav gates, usage bars, and a billing page with plans, invoices, and quotations, plus checkout return handling. → [references/client-react.md](references/client-react.md)
 5. **Verify** with the checklist in [references/recipes.md](references/recipes.md). That file also has task recipes (add a paid feature, add a quota, add a billing cycle, debug a lock).
 
@@ -86,5 +89,5 @@ For the exact SDK surface (methods, types, statuses, errors, webhooks), see [ref
 ## Sources of truth
 
 - SDK docs: `node_modules/@graphland/pgw-merchant/README.md`, plus the `/nest` and `/react` READMEs in the PGW repo at `packages/merchant-sdk/src/{nest,react}/README.md`.
-- PGW internals and ADRs (entitlement resolution, plan changes, trial/grace): the PGW repo `docs/billing-architecture.md` and `docs/adr/`. The author's local checkout is `/Users/mehedihasan/project/graphland-pgw`.
+- PGW internals and ADRs (entitlement resolution, plan changes, trial/grace): the PGW repo `docs/billing-architecture.md` and `docs/adr/`. Find the local checkout with `find ~/code ~/project -maxdepth 3 -iname graphland-pgw 2>/dev/null` if its path isn't already known.
 - If the installed SDK version differs from 3.4.0, re-check signatures in `node_modules/@graphland/pgw-merchant/dist/**/*.d.ts` before relying on this skill.
