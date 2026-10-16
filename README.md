@@ -39,6 +39,8 @@ If your agent has slash-command syntax for skills (Claude Code, Cursor), `/gl-wo
 
 > **Migrating from v1.x:** all skills were renamed with a `gl-` prefix in v2.0.0 (e.g. `new-module` → `gl-console-module`, `setup-workspace` → `gl-workspace-setup`, `setup-foundation` → `gl-console-setup`, `ui-patterns` → `gl-console-patterns`). Remove the old skills and re-install `--all`.
 
+> **Migrating to v3.0.0:** `gl-billing-patterns`, `gl-billing-module`, and `gl-pgw-billing` were removed. Billing now runs on Graphland PGW only, through the single `gl-pgw` skill (guidelines plus API and console templates). Delete the three old skill folders and re-install `--all`.
+
 ## What's inside
 
 ### `frontend/` — React console patterns
@@ -59,9 +61,6 @@ If your agent has slash-command syntax for skills (Claude Code, Cursor), `/gl-wo
 | --- | --- |
 | `gl-api-patterns` | Backend guideline — modules, DTOs, pagination, Better Auth. Auto-loaded when relevant. |
 | `gl-api-module` | Scaffold CRUD module (**Better Auth only**). |
-| `gl-billing-patterns` | Subscription/entitlement guideline — shared plans package, computed entitlements, `EntitlementService.assert*` enforcement, gateway-agnostic payments + webhooks. Auto-loaded when relevant. |
-| `gl-billing-module` | Add subscriptions, plans, paywalls, usage limits, and feature gating to a project (API + shared package + console gates). |
-| `gl-pgw-billing` | Integrate Graphland PGW subscription billing — provisioning, hosted checkout, plan gates, quotas, billing status, invoices, and quotations. |
 | `gl-nest-observability` | Vendor-neutral errors, logs, per-service tracing, and runtime metrics for NestJS (Sentry driver bundled), plus how to read traces and spot N+1. |
 
 ### `fullstack/` — monorepo
@@ -69,6 +68,7 @@ If your agent has slash-command syntax for skills (Claude Code, Cursor), `/gl-wo
 | Skill | What it does |
 | --- | --- |
 | `gl-workspace-setup` | Bootstrap monorepo from **bundled templates** in `skills/fullstack/gl-workspace-setup/templates/`. |
+| `gl-pgw` | Subscription billing and entitlements with Graphland PGW — guidelines plus templates for a shared feature-keys package, the NestJS side (checkout proxy, provisioning, plan-feature guard, quotas), and the React console (workspace gate, feature gates, usage bars, plans, invoices, quotations). |
 
 ### `general/` — cross-cutting workflows
 
@@ -87,7 +87,7 @@ If your agent has slash-command syntax for skills (Claude Code, Cursor), `/gl-wo
 
 See `skills/fullstack/gl-workspace-setup/templates/README.md` for the full map.
 
-Also bundled in sibling skills: `gl-console-patterns/templates/` (forms, tables, gql-client), `gl-api-patterns/templates/` (REST modules, common DTOs).
+Also bundled in sibling skills: `gl-console-patterns/templates/` (forms, tables, gql-client), `gl-api-patterns/templates/` (REST modules, common DTOs), `gl-nest-observability/templates/` (telemetry layer), `gl-pgw/templates/` (PGW billing: feature keys, Nest API, React console).
 
 ## Sample prompts
 
@@ -242,14 +242,14 @@ Review apps/api/src/vehicle against gl-api-patterns — DTO validation,
 pagination contract, and org scoping on every query.
 ```
 
-**`gl-pgw-billing`** — connect an application to Graphland PGW:
+**`gl-pgw`** — connect an application to Graphland PGW:
 
 ```
-Use gl-pgw-billing to add subscription billing to fleetly.
+Use gl-pgw to add subscription billing to fleetly.
 
-Provision a free billing account when an organization is created, add hosted
-checkout and invoice payment, gate AI dispatch behind a boolean feature, and
-limit active vehicles with a non-consumable entitlement.
+Provision a free billing account when an organization is created, add the
+billing page with hosted checkout and invoice payment, gate AI dispatch behind
+a boolean feature, and limit active vehicles with a non-consumable entitlement.
 ```
 
 **`gl-nest-observability`** — add telemetry to a Nest API, or debug a slow request:

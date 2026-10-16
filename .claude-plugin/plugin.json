@@ -1,7 +1,7 @@
 {
   "name": "graphland",
   "description": "GraphLand's fullstack engineering guideline: frontend patterns, NestJS backend conventions and observability, Graphland PGW billing and entitlements, and bun-workspace monorepo setup.",
-  "version": "2.4.0",
+  "version": "3.0.0",
   "author": {
     "name": "GraphLand",
     "url": "https://github.com/graphland-dev"
@@ -16,11 +16,9 @@
     "./skills/frontend/gl-console-deploy",
     "./skills/backend/gl-api-patterns",
     "./skills/backend/gl-api-module",
-    "./skills/backend/gl-billing-patterns",
-    "./skills/backend/gl-billing-module",
-    "./skills/backend/gl-pgw-billing",
     "./skills/backend/gl-nest-observability",
     "./skills/fullstack/gl-workspace-setup",
+    "./skills/fullstack/gl-pgw",
     "./skills/general/gl-review",
     "./skills/general/gl-release-notes"
   ]
