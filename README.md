@@ -62,6 +62,7 @@ If your agent has slash-command syntax for skills (Claude Code, Cursor), `/gl-wo
 | `gl-billing-patterns` | Subscription/entitlement guideline — shared plans package, computed entitlements, `EntitlementService.assert*` enforcement, gateway-agnostic payments + webhooks. Auto-loaded when relevant. |
 | `gl-billing-module` | Add subscriptions, plans, paywalls, usage limits, and feature gating to a project (API + shared package + console gates). |
 | `gl-pgw-billing` | Integrate Graphland PGW subscription billing — provisioning, hosted checkout, plan gates, quotas, billing status, invoices, and quotations. |
+| `gl-nest-observability` | Vendor-neutral errors, logs, per-service tracing, and runtime metrics for NestJS (Sentry driver bundled), plus how to read traces and spot N+1. |
 
 ### `fullstack/` — monorepo
 
@@ -249,6 +250,15 @@ Use gl-pgw-billing to add subscription billing to fleetly.
 Provision a free billing account when an organization is created, add hosted
 checkout and invoice payment, gate AI dispatch behind a boolean feature, and
 limit active vehicles with a non-consumable entitlement.
+```
+
+**`gl-nest-observability`** — add telemetry to a Nest API, or debug a slow request:
+
+```
+Use gl-nest-observability to add Sentry to apps/api: errors, logs, and
+per-service tracing, 10% sampling, and a header that forces a trace.
+
+Then open the trace for "query Vehicles" and tell me if it is N+1.
 ```
 
 **`gl-review`** — guideline review of a whole change before merging:
